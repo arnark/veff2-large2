@@ -1,43 +1,10 @@
-// Initialize draw and undo stacks
-let drawStack = [];
-let undoStack = [];
+var canvas,
+    ctx,
+    mouse,
+    drawStack,
+    undoStack;
 
-// Find the canvas element and set the size
-let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight - 100;
-
-let mouse = {x: 0, y: 0};
-
-// Update mouse position on mousemove
-canvas.addEventListener('mousemove', function(e) {
-  mouse.x = e.pageX - this.offsetLeft;
-  mouse.y = e.pageY - this.offsetTop;
-}, false);
-
-// Draw tool settings
-ctx.lineWidth = 10;
-ctx.lineJoin = 'round';
-ctx.lineCap = 'round';
-ctx.strokeStyle = '#000';
-
-canvas.addEventListener('mousedown', function(e) {
-	canvas.drawStroke = [];
-	canvas.drawDot = { fromX: mouse.x, fromY: mouse.y }
-    ctx.beginPath();
-    ctx.moveTo(mouse.x, mouse.y);
- 	onPaint();
-    canvas.addEventListener('mousemove', onPaint, false);
-}, false);
- 
-canvas.addEventListener('mouseup', function() {
-    canvas.removeEventListener('mousemove', onPaint, false);
-    drawStack.push(canvas.drawStroke);
-}, false);
-
-var onPaint = function() {
-
+function paint() {
     ctx.lineTo(mouse.x, mouse.y);
     ctx.stroke();
 
@@ -50,11 +17,11 @@ var onPaint = function() {
 	canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
 };
 
-var clearCanvas = function() {
+function clearCanvas() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-var rePaint = function() {
+function rePaint() {
 	// Completely repaint each dot on the canvas from the drawStack
 	drawStack.forEach(stroke => {
 		stroke.forEach(dot => {
@@ -66,7 +33,7 @@ var rePaint = function() {
 	});
 };
 
-var undo = function() {
+function undo() {
 	let poppedDraw = drawStack.pop();
 	if (poppedDraw !== undefined) {
 		undoStack.push(poppedDraw);
@@ -75,7 +42,7 @@ var undo = function() {
 	}
 }
 
-var redo = function() {
+function redo() {
 	let redoDraw = undoStack.pop();
 	if (redoDraw !== undefined) {
 		drawStack.push(redoDraw);
@@ -83,3 +50,46 @@ var redo = function() {
 		rePaint();
 	}
 }
+
+function init() {
+	// Initialize draw and undo stacks
+	drawStack = [];
+	undoStack = [];
+	
+	// Find the canvas element and set the size
+	canvas = document.getElementById('canvas');
+	ctx = canvas.getContext('2d');
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight - 100;
+	
+	mouse = {x: 0, y: 0};
+	// Update mouse position on mousemove
+	canvas.addEventListener('mousemove', function(e) {
+	  mouse.x = e.pageX - this.offsetLeft;
+	  mouse.y = e.pageY - this.offsetTop;
+	}, false);
+	
+	// Initial draw tool settings
+	ctx.lineWidth = 10;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = '#000';
+	
+	// Mousedown / mousemove listener
+	canvas.addEventListener('mousedown', function(e) {
+		canvas.drawStroke = [];
+		canvas.drawDot = { fromX: mouse.x, fromY: mouse.y }
+	    ctx.beginPath();
+	    ctx.moveTo(mouse.x, mouse.y);
+	 	paint();
+	    canvas.addEventListener('mousemove', paint, false);
+	}, false);
+	 
+	// Mouseup listener
+	canvas.addEventListener('mouseup', function() {
+	    canvas.removeEventListener('mousemove', paint, false);
+	    drawStack.push(canvas.drawStroke);
+	}, false);
+}
+
+window.addEventListener('load', init, false);
