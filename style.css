@@ -1,0 +1,26 @@
+body {
+	margin: 0;
+}
+
+#container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#canvas {
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+}
+
+#canvas-container {
+	width: 100%;
+}
+
+#canvas-options {
+	width: 100%;
+	height: 100px;
+	background-color: green;
+}
