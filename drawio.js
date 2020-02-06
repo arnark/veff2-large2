@@ -111,6 +111,7 @@ function savePainting() {
 function loadPainting(index) {
 	for (let i = 0; i < savedPaintings.length; i++) {
 		if (i == index) {
+			drawStack = savedPaintings[i];
 			rePaint(savedPaintings[i]);
 		}
 	}
