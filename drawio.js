@@ -55,6 +55,7 @@ var clearCanvas = function() {
 }
 
 var rePaint = function() {
+	// Completely repaint each dot on the canvas from the drawStack
 	drawStack.forEach(stroke => {
 		stroke.forEach(dot => {
   			ctx.beginPath();
@@ -66,7 +67,19 @@ var rePaint = function() {
 };
 
 var undo = function() {
-	drawStack.pop();
-	clearCanvas();
-	rePaint();
+	let poppedDraw = drawStack.pop();
+	if (poppedDraw !== undefined) {
+		undoStack.push(poppedDraw);
+		clearCanvas();
+		rePaint();
+	}
+}
+
+var redo = function() {
+	let redoDraw = undoStack.pop();
+	if (redoDraw !== undefined) {
+		drawStack.push(redoDraw);
+		clearCanvas();
+		rePaint();
+	}
 }
