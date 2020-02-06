@@ -2,7 +2,10 @@ var canvas,
     ctx,
     mouse,
     drawStack,
-    undoStack;
+    undoStack,
+    paintCoords,
+    move = false,
+    index = 0;
 
 function paint() {
     ctx.lineTo(mouse.x, mouse.y);
@@ -16,7 +19,7 @@ function paint() {
 	canvas.drawStroke.push(canvas.drawDot);
 
 	// Reset drawDot
-	canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
+	canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y };
 };
 
 function clearCanvas() {
@@ -65,13 +68,44 @@ function redo() {
 }
 
 function setLineWidth(width) {
-	console.log("width")
 	ctx.lineWidth = width;
 }
 
 function setLineColor(colorCode) {
-	console.log("color")
 	ctx.strokeStyle = colorCode;
+}
+
+function moveItems() {
+	let strokeList = [];
+
+	drawStack.forEach(stroke => {
+		stroke.forEach(dot => {
+			if(dot.fromX >= 0 && dot.toX <= window.innerWidth && dot.fromY >= 0 && dot.toY <= window.innerHeight - 100) {
+				if (!strokeList.includes(stroke)) {
+					strokeList.push(stroke);
+				}
+			}
+		});
+	});
+
+	strokeList.forEach(stroke => {
+		stroke.forEach(dot => {
+			dot.fromX = dot.fromX + 200
+			dot.toX = dot.toX + 200
+			dot.fromY = dot.fromY + 100
+			dot.toY = dot.toY + 100
+		});
+	});
+	clearCanvas();
+	rePaint();
+}
+
+function toggleMove() {
+	if (move) {
+		move = false;
+	} else {
+		move = true;
+	}
 }
 
 function init() {
@@ -101,7 +135,13 @@ function init() {
 	// Mousedown / mousemove listener
 	canvas.addEventListener('mousedown', function(e) {
 		canvas.drawStroke = [];
-		canvas.drawDot = { fromX: mouse.x, fromY: mouse.y }
+		canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y }
+
+		if (move === true) {
+			moveItems();
+		}
+		
+
 	    ctx.beginPath();
 	    ctx.moveTo(mouse.x, mouse.y);
 	 	paint();
@@ -111,7 +151,9 @@ function init() {
 	// Mouseup listener
 	canvas.addEventListener('mouseup', function() {
 	    canvas.removeEventListener('mousemove', paint, false);
+	    console.log(canvas.drawStroke);
 	    drawStack.push(canvas.drawStroke);
+	    index++;
 	}, false);
 }
 
