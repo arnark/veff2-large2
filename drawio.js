@@ -11,6 +11,8 @@ function paint() {
     // Push the drawDot to the drawStroke array
     canvas.drawDot.toX = mouse.x;
     canvas.drawDot.toY = mouse.y;
+    canvas.drawDot.lineWidth = ctx.lineWidth;
+	canvas.drawDot.strokeStyle = ctx.strokeStyle;
 	canvas.drawStroke.push(canvas.drawDot);
 
 	// Reset drawDot
@@ -22,15 +24,26 @@ function clearCanvas() {
 }
 
 function rePaint() {
+
+	// Preserver current settings
+	let currLineWidth = ctx.lineWidth;
+	let currStrokeStyle = ctx.strokeStyle
+
 	// Completely repaint each dot on the canvas from the drawStack
 	drawStack.forEach(stroke => {
 		stroke.forEach(dot => {
+			ctx.lineWidth = dot.lineWidth;
+			ctx.strokeStyle = dot.strokeStyle;
   			ctx.beginPath();
     		ctx.moveTo(dot.fromX, dot.fromY);
     		ctx.lineTo(dot.toX, dot.toY);
     		ctx.stroke();
 		});
 	});
+
+	// Revert to old settings
+	ctx.lineWidth = currLineWidth;
+	ctx.strokeStyle = currStrokeStyle;
 };
 
 function undo() {
@@ -49,6 +62,16 @@ function redo() {
 		clearCanvas();
 		rePaint();
 	}
+}
+
+function setLineWidth(width) {
+	console.log("width")
+	ctx.lineWidth = width;
+}
+
+function setLineColor(colorCode) {
+	console.log("color")
+	ctx.strokeStyle = colorCode;
 }
 
 function init() {

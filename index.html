@@ -10,8 +10,26 @@
 		<div id="container">
 
 			<div id="canvas-options">
+
 				<a href="#" onclick="undo()">Undo Draw</a>
 				<a href="#" onclick="redo()">Redo Draw</a>
+
+				<select onchange="setLineWidth(this.value)">
+  					<option value="2">2</option>
+  					<option value="4">4</option>
+  					<option value="6">6</option>
+  					<option value="8">8</option>
+  					<option value="10">10</option>
+  					<option value="12">12</option>
+				</select>
+
+
+				<select onchange="setLineColor(this.value)">
+  					<option value="blue">Blue</option>
+  					<option value="red">Red</option>
+  					<option value="yellow">Yellow</option>
+				</select>
+
 			</div>
 
 			<div id="canvas-container">
