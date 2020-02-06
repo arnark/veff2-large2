@@ -31,6 +31,11 @@
   					<option value="yellow">Yellow</option>
 				</select>
 
+				<button onclick="savePainting()">Save Painting</button>
+
+				<select id="saved" onchange="loadPainting(this.value)">
+				</select>
+
 			</div>
 
 			<div id="canvas-container">

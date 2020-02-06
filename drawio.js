@@ -5,7 +5,8 @@ var canvas,
     undoStack,
     paintCoords,
     move = false,
-    index = 0;
+    index = 0,
+    savedPaintings;
 
 function paint() {
     ctx.lineTo(mouse.x, mouse.y);
@@ -22,18 +23,15 @@ function paint() {
 	canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y };
 };
 
-function clearCanvas() {
+function rePaint(stack = drawStack) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function rePaint() {
 
 	// Preserver current settings
 	let currLineWidth = ctx.lineWidth;
 	let currStrokeStyle = ctx.strokeStyle
 
 	// Completely repaint each dot on the canvas from the drawStack
-	drawStack.forEach(stroke => {
+	stack.forEach(stroke => {
 		stroke.forEach(dot => {
 			ctx.lineWidth = dot.lineWidth;
 			ctx.strokeStyle = dot.strokeStyle;
@@ -53,7 +51,6 @@ function undo() {
 	let poppedDraw = drawStack.pop();
 	if (poppedDraw !== undefined) {
 		undoStack.push(poppedDraw);
-		clearCanvas();
 		rePaint();
 	}
 }
@@ -62,7 +59,6 @@ function redo() {
 	let redoDraw = undoStack.pop();
 	if (redoDraw !== undefined) {
 		drawStack.push(redoDraw);
-		clearCanvas();
 		rePaint();
 	}
 }
@@ -96,7 +92,6 @@ function moveItems() {
 			dot.toY = dot.toY + 100
 		});
 	});
-	clearCanvas();
 	rePaint();
 }
 
@@ -106,6 +101,29 @@ function toggleMove() {
 	} else {
 		move = true;
 	}
+}
+
+function savePainting() {
+	savedPaintings.push(drawStack);
+	localStorage.setItem("paintings", JSON.stringify(savedPaintings));
+}
+
+function loadPainting(index) {
+	for (let i = 0; i < savedPaintings.length; i++) {
+		if (i == index) {
+			rePaint(savedPaintings[i]);
+		}
+	}
+}
+
+function loadSavedPaintings() {
+	for (let i = 0; i < savedPaintings.length; i++) {
+		let savedOptions = document.getElementById("saved")
+		let option = document.createElement('option');
+    	option.value = i;
+    	option.innerHTML = i;
+    	savedOptions.appendChild(option);
+	};
 }
 
 function init() {
@@ -120,6 +138,12 @@ function init() {
 	canvas.height = window.innerHeight - 100;
 	
 	mouse = {x: 0, y: 0};
+
+	// Load saved paintings into dropdown
+	savedPaintings = JSON.parse(localStorage.getItem("paintings"));
+	if(savedPaintings === null) { savedPaintings = []; }
+	loadSavedPaintings();
+
 	// Update mouse position on mousemove
 	canvas.addEventListener('mousemove', function(e) {
 	  mouse.x = e.pageX - this.offsetLeft;
@@ -141,7 +165,6 @@ function init() {
 			moveItems();
 		}
 		
-
 	    ctx.beginPath();
 	    ctx.moveTo(mouse.x, mouse.y);
 	 	paint();
