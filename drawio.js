@@ -4,12 +4,18 @@ var canvas,
     drawStack,
     undoStack,
     paintCoords,
-    move = false,
-    startPosSet = false,
     startX,
     startY,
-    index = 0,
-    savedPaintings;
+    moveFromX,
+    moveToX,
+    moveFromY,
+    moveToY,
+    savedPaintings,
+    strokeList = [],
+    move = false,
+    areaSelected = false,
+    index = 0;
+    
 
 function paint() {
     ctx.lineTo(mouse.x, mouse.y);
@@ -74,41 +80,122 @@ function setLineColor(colorCode) {
 	ctx.strokeStyle = colorCode;
 }
 
+function removeSelectedArea() {
+    let selectedArea = document.getElementById("selected-area");
+    if (selectedArea) {
+    	selectedArea.remove();
+    }
+    document.getElementById("canvas-move").style.cursor = "move";
+}
+
+function paintSelectedArea() {
+
+	moveFromX = startX;
+    moveToX = mouse.x;
+    moveFromY = startY;
+    moveToY = mouse.y;
+
+	if (!document.getElementById("selected-area")) {
+		let selectedAreaDiv = document.createElement("div");
+  		selectedAreaDiv.id = "selected-area";
+  		document.getElementById("canvas-container").appendChild(selectedAreaDiv);
+	}
+
+	let selectedArea = document.getElementById("selected-area");
+
+	// Default height and styles
+  	let height = moveToY - moveFromY;
+  	let width = moveToX - moveFromX;
+  	selectedArea.style.top = moveFromY + 100 + "px";
+  	selectedArea.style.left = moveFromX + "px";
+
+  	// Updated given circumstances
+  	if (height < 0) {
+  		height = moveFromY - 5 - moveToY;
+  		selectedArea.style.top = moveFromY + 100 - height + "px";
+  	}
+
+  	if (width < 0) {
+  		width = moveFromX - 5 - moveToX;
+  		selectedArea.style.left = moveFromX - width + "px";
+  	}
+
+  	// Set width and height
+  	selectedArea.style.height = height - 5 + "px";
+  	selectedArea.style.width = width - 5 + "px";
+
+}
+
 function moveItems() {
-	let strokeList = [];
 
-	drawStack.forEach(stroke => {
-		stroke.forEach(dot => {
-			if(dot.fromX >= 0 && dot.toX <= window.innerWidth && dot.fromY >= 0 && dot.toY <= window.innerHeight - 100) {
-				if (!strokeList.includes(stroke)) {
-					strokeList.push(stroke);
+	// Select the elements that are to be moved
+	if (strokeList.length === 0) {
+
+		let height = moveToY - moveFromY;
+  		let width = moveToX - moveFromX;
+
+		drawStack.forEach(stroke => {
+			stroke.forEach(dot => {
+				// Check for all possible area selectors 
+				if (height < 0) {
+					if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
+						if (!strokeList.includes(stroke)) {
+							strokeList.push(stroke);
+						}
+					} else if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
+						if (!strokeList.includes(stroke)) {
+							strokeList.push(stroke);
+						}
+					}
+				} else if (width < 0) {
+					if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+						if (!strokeList.includes(stroke)) {
+							strokeList.push(stroke);
+						}
+					}
+				} else {
+					if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+						if (!strokeList.includes(stroke)) {
+							strokeList.push(stroke);
+						}
+					}
 				}
-			}
+			});
 		});
-	});
+	}
 
+	// Get relative movement pixels to where the users clicks
 	let Xmove = - startX + mouse.x;
 	let Ymove = - startY + mouse.y;
 
+	// Update each and every dot
 	strokeList.forEach(stroke => {
 		stroke.forEach(dot => {
-
 			dot.fromX = dot.fromX + Xmove;
 			dot.toX = dot.toX + Xmove;
 			dot.fromY = dot.fromY + Ymove;
 			dot.toY = dot.toY + Ymove;
-
 		});
 	});
+
 	startX = mouse.x;
 	startY = mouse.y;
 	rePaint();
 }
 
 function toggleMove() {
+
+	// Reset default
+    areaSelected = false;
+	strokeList = [];
+
 	if (move) {
+		document.getElementById("canvas-move").style.cursor = "auto";
+		document.getElementById("canvas-move").id = "canvas";
 		move = false;
 	} else {
+		document.getElementById("canvas").style.cursor = "crosshair";
+		document.getElementById("canvas").id = "canvas-move";
 		move = true;
 	}
 }
@@ -148,6 +235,11 @@ function init() {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight - 100;
 	
+	// Initial draw tool settings
+	ctx.lineWidth = 10;
+	ctx.lineJoin = 'round';
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = '#000';
 	mouse = {x: 0, y: 0};
 
 	// Load saved paintings into dropdown
@@ -161,19 +253,24 @@ function init() {
 	  mouse.y = e.pageY - this.offsetTop;
 	}, false);
 	
-	// Initial draw tool settings
-	ctx.lineWidth = 10;
-	ctx.lineJoin = 'round';
-	ctx.lineCap = 'round';
-	ctx.strokeStyle = '#000';
-	
 	// Mousedown / mousemove listener
 	canvas.addEventListener('mousedown', function(e) {
+		// Move is toggled
 		if (move === true) {
 			startX = mouse.x;
 			startY = mouse.y;
-			canvas.addEventListener('mousemove', moveItems, false);
-		} else {
+			
+			if (areaSelected === false) {
+				canvas.addEventListener('mousemove', paintSelectedArea, false);
+			} else {
+    			removeSelectedArea();
+    			strokeList = [];
+				canvas.addEventListener('mousemove', moveItems, false);
+			}
+			
+		} 
+		// Draw is toggled
+		else {
 			canvas.drawStroke = [];
 			canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y }
 		
@@ -183,20 +280,30 @@ function init() {
 	    	canvas.addEventListener('mousemove', paint, false);
 	    }
 	}, false);
-	 
+	
 	// Mouseup listener
 	canvas.addEventListener('mouseup', function() {
+		// Move is toggled
 		if (move === true) {
-			canvas.removeEventListener('mousemove', moveItems, false);
-			startPosSet = false;
-		} else {
+			if (areaSelected === false) {
+				areaSelected = true;
+				canvas.removeEventListener('mousemove', paintSelectedArea, false);
+				removeSelectedArea();
+			} else {
+				areaSelected = false;
+				toggleMove();
+				canvas.removeEventListener('mousemove', moveItems, false);
+			}
+		} 
+		// Draw is toggled
+		else {
 			canvas.removeEventListener('mousemove', paint, false);
-	    	console.log(canvas.drawStroke);
 	    	drawStack.push(canvas.drawStroke);
 	    	index++;
 		}
 
 	}, false);
+
 }
 
 window.addEventListener('load', init, false);
