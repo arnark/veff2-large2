@@ -5,6 +5,9 @@ var canvas,
     undoStack,
     paintCoords,
     move = false,
+    startPosSet = false,
+    startX,
+    startY,
     index = 0,
     savedPaintings;
 
@@ -84,14 +87,21 @@ function moveItems() {
 		});
 	});
 
+	let Xmove = - startX + mouse.x;
+	let Ymove = - startY + mouse.y;
+
 	strokeList.forEach(stroke => {
 		stroke.forEach(dot => {
-			dot.fromX = dot.fromX + 200
-			dot.toX = dot.toX + 200
-			dot.fromY = dot.fromY + 100
-			dot.toY = dot.toY + 100
+
+			dot.fromX = dot.fromX + Xmove;
+			dot.toX = dot.toX + Xmove;
+			dot.fromY = dot.fromY + Ymove;
+			dot.toY = dot.toY + Ymove;
+
 		});
 	});
+	startX = mouse.x;
+	startY = mouse.y;
 	rePaint();
 }
 
@@ -159,25 +169,33 @@ function init() {
 	
 	// Mousedown / mousemove listener
 	canvas.addEventListener('mousedown', function(e) {
-		canvas.drawStroke = [];
-		canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y }
-
 		if (move === true) {
-			moveItems();
-		}
+			startX = mouse.x;
+			startY = mouse.y;
+			canvas.addEventListener('mousemove', moveItems, false);
+		} else {
+			canvas.drawStroke = [];
+			canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y }
 		
-	    ctx.beginPath();
-	    ctx.moveTo(mouse.x, mouse.y);
-	 	paint();
-	    canvas.addEventListener('mousemove', paint, false);
+	    	ctx.beginPath();
+	    	ctx.moveTo(mouse.x, mouse.y);
+	 		paint();
+	    	canvas.addEventListener('mousemove', paint, false);
+	    }
 	}, false);
 	 
 	// Mouseup listener
 	canvas.addEventListener('mouseup', function() {
-	    canvas.removeEventListener('mousemove', paint, false);
-	    console.log(canvas.drawStroke);
-	    drawStack.push(canvas.drawStroke);
-	    index++;
+		if (move === true) {
+			canvas.removeEventListener('mousemove', moveItems, false);
+			startPosSet = false;
+		} else {
+			canvas.removeEventListener('mousemove', paint, false);
+	    	console.log(canvas.drawStroke);
+	    	drawStack.push(canvas.drawStroke);
+	    	index++;
+		}
+
 	}, false);
 }
 
