@@ -1,9 +1,9 @@
 var canvas,
     ctx,
     mouse,
+    tool,
     drawStack,
     undoStack,
-    paintCoords,
     startX,
     startY,
     moveFromX,
@@ -13,23 +13,43 @@ var canvas,
     savedPaintings,
     strokeList = [],
     move = false,
-    areaSelected = false,
-    index = 0;
+    areaSelected = false;
     
 
 function paint() {
-    ctx.lineTo(mouse.x, mouse.y);
-    ctx.stroke();
+	if (tool === 'pencil') {
+		ctx.lineTo(mouse.x, mouse.y);
+    	ctx.stroke();
+	
+    	// Push the drawDot to the drawStroke array
+    	canvas.drawDot.toX = mouse.x;
+    	canvas.drawDot.toY = mouse.y;
+    	canvas.drawDot.lineWidth = ctx.lineWidth;
+		canvas.drawDot.strokeStyle = ctx.strokeStyle;
+		canvas.drawDot.tool = tool;
+		if(!canvas.drawStroke.includes(canvas.drawDot)) {
+			canvas.drawStroke.push(canvas.drawDot);
+		}
+	
+		// Reset drawDot
+		canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
+	} else if (tool === 'circle') {
+		let radius = Math.abs(- startX + mouse.x);
+		rePaint();
+		ctx.beginPath();
+		ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+		ctx.stroke();
 
-    // Push the drawDot to the drawStroke array
-    canvas.drawDot.toX = mouse.x;
-    canvas.drawDot.toY = mouse.y;
-    canvas.drawDot.lineWidth = ctx.lineWidth;
-	canvas.drawDot.strokeStyle = ctx.strokeStyle;
-	canvas.drawStroke.push(canvas.drawDot);
+		// Push circle to drawStroke array
+		canvas.drawDot.arc = { xPos: startX, yPos: startY, radius: radius, sAngle: 0, eAngle: 2 * Math.PI };
+		canvas.drawDot.lineWidth = ctx.lineWidth;
+		canvas.drawDot.strokeStyle = ctx.strokeStyle;
+		canvas.drawDot.tool = tool;
+		if(!canvas.drawStroke.includes(canvas.drawDot)) {
+			canvas.drawStroke.push(canvas.drawDot);
+		}
+	}
 
-	// Reset drawDot
-	canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y };
 };
 
 function rePaint(stack = drawStack) {
@@ -42,12 +62,22 @@ function rePaint(stack = drawStack) {
 	// Completely repaint each dot on the canvas from the drawStack
 	stack.forEach(stroke => {
 		stroke.forEach(dot => {
-			ctx.lineWidth = dot.lineWidth;
-			ctx.strokeStyle = dot.strokeStyle;
-  			ctx.beginPath();
-    		ctx.moveTo(dot.fromX, dot.fromY);
-    		ctx.lineTo(dot.toX, dot.toY);
-    		ctx.stroke();
+			if (dot.tool === 'pencil') {
+				ctx.lineWidth = dot.lineWidth;
+				ctx.strokeStyle = dot.strokeStyle;
+  				ctx.beginPath();
+    			ctx.moveTo(dot.fromX, dot.fromY);
+    			ctx.lineTo(dot.toX, dot.toY);
+    			ctx.stroke();
+			} else if (dot.tool === 'circle') {
+				// console.log(dot);
+				ctx.lineWidth = dot.lineWidth;
+				ctx.strokeStyle = dot.strokeStyle;
+				ctx.beginPath();
+				ctx.arc(dot.arc.xPos, dot.arc.yPos, dot.arc.radius, dot.arc.sAngle, dot.arc.eAngle);
+				ctx.stroke();
+			}
+
 		});
 	});
 
@@ -78,6 +108,10 @@ function setLineWidth(width) {
 
 function setLineColor(colorCode) {
 	ctx.strokeStyle = colorCode;
+}
+
+function setPencilType(pencilType) {
+	tool = pencilType;
 }
 
 function removeSelectedArea() {
@@ -136,31 +170,35 @@ function moveItems() {
 
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
-				// Check for all possible area selectors 
-				if (height < 0) {
-					if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
-						if (!strokeList.includes(stroke)) {
-							strokeList.push(stroke);
+				if (dot.tool === 'pencil') {
+					// Check for all possible area selectors 
+					if (height < 0) {
+						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
+						} else if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
 						}
-					} else if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
-						if (!strokeList.includes(stroke)) {
-							strokeList.push(stroke);
+					} else if (width < 0) {
+						if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
+						}
+					} else {
+						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
 						}
 					}
-				} else if (width < 0) {
-					if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
-						if (!strokeList.includes(stroke)) {
-							strokeList.push(stroke);
-						}
-					}
-				} else {
-					if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
-						if (!strokeList.includes(stroke)) {
-							strokeList.push(stroke);
-						}
-					}
+				} else if (dot.tool === 'circle') {
+
 				}
-			});
+ 			});
 		});
 	}
 
@@ -240,6 +278,7 @@ function init() {
 	ctx.lineJoin = 'round';
 	ctx.lineCap = 'round';
 	ctx.strokeStyle = '#000';
+	tool = 'pencil';
 	mouse = {x: 0, y: 0};
 
 	// Load saved paintings into dropdown
@@ -255,11 +294,12 @@ function init() {
 	
 	// Mousedown / mousemove listener
 	canvas.addEventListener('mousedown', function(e) {
+
+		startX = mouse.x;
+		startY = mouse.y;
+		
 		// Move is toggled
 		if (move === true) {
-			startX = mouse.x;
-			startY = mouse.y;
-			
 			if (areaSelected === false) {
 				canvas.addEventListener('mousemove', paintSelectedArea, false);
 			} else {
@@ -272,7 +312,7 @@ function init() {
 		// Draw is toggled
 		else {
 			canvas.drawStroke = [];
-			canvas.drawDot = { index: index, fromX: mouse.x, fromY: mouse.y }
+			canvas.drawDot = { fromX: mouse.x, fromY: mouse.y }
 		
 	    	ctx.beginPath();
 	    	ctx.moveTo(mouse.x, mouse.y);
@@ -299,7 +339,6 @@ function init() {
 		else {
 			canvas.removeEventListener('mousemove', paint, false);
 	    	drawStack.push(canvas.drawStroke);
-	    	index++;
 		}
 
 	}, false);

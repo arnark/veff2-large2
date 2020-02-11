@@ -26,9 +26,16 @@
 
 
 				<select onchange="setLineColor(this.value)">
+					<option value="black">Black</option>
   					<option value="blue">Blue</option>
   					<option value="red">Red</option>
   					<option value="yellow">Yellow</option>
+				</select>
+
+				<select onchange="setPencilType(this.value)">
+					<option value="pencil">Pencil</option>
+  					<option value="circle">Circle</option>
+  					<option value="rectangle">Rectangle</option>
 				</select>
 
 				<button onclick="savePainting()">Save Painting</button>
