@@ -17,6 +17,12 @@ var canvas,
     
 
 function paint() {
+
+	// Common attributes
+	canvas.drawDot.lineWidth = ctx.lineWidth;
+	canvas.drawDot.strokeStyle = ctx.strokeStyle;
+	canvas.drawDot.tool = tool;
+
 	if (tool === 'pencil') {
 		ctx.lineTo(mouse.x, mouse.y);
     	ctx.stroke();
@@ -24,15 +30,13 @@ function paint() {
     	// Push the drawDot to the drawStroke array
     	canvas.drawDot.toX = mouse.x;
     	canvas.drawDot.toY = mouse.y;
-    	canvas.drawDot.lineWidth = ctx.lineWidth;
-		canvas.drawDot.strokeStyle = ctx.strokeStyle;
-		canvas.drawDot.tool = tool;
 		if(!canvas.drawStroke.includes(canvas.drawDot)) {
 			canvas.drawStroke.push(canvas.drawDot);
 		}
 	
 		// Reset drawDot
 		canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
+
 	} else if (tool === 'circle') {
 		let radius = Math.abs(- startX + mouse.x);
 		rePaint();
@@ -42,9 +46,6 @@ function paint() {
 
 		// Push circle to drawStroke array
 		canvas.drawDot.arc = { xPos: startX, yPos: startY, radius: radius, sAngle: 0, eAngle: 2 * Math.PI };
-		canvas.drawDot.lineWidth = ctx.lineWidth;
-		canvas.drawDot.strokeStyle = ctx.strokeStyle;
-		canvas.drawDot.tool = tool;
 		if(!canvas.drawStroke.includes(canvas.drawDot)) {
 			canvas.drawStroke.push(canvas.drawDot);
 		}
@@ -171,7 +172,8 @@ function moveItems() {
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
 				if (dot.tool === 'pencil') {
-					// Check for all possible area selectors 
+
+					// Check for all possible elements within selected area
 					if (height < 0) {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
 							if (!strokeList.includes(stroke)) {
@@ -195,7 +197,40 @@ function moveItems() {
 							}
 						}
 					}
+
 				} else if (dot.tool === 'circle') {
+
+					// Reused values
+					let fromX = dot.arc.xPos - dot.arc.radius;
+					let toX = dot.arc.xPos + dot.arc.radius;
+					let fromY = dot.arc.yPos - dot.arc.radius;
+					let toY = dot.arc.yPos + dot.arc.radius;
+
+					// Check if selected area contains a circle
+					if (height < 0) {
+						if (fromX >= moveFromX && fromY <= moveFromY ) {
+							console.log("here")
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
+						} else if (fromX <= moveFromX && toX >= moveToX && fromY <= moveFromY && toY >= moveToY) {
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
+						}
+					} else if (width < 0) {
+						if (fromX <= moveFromX & toX >= moveToX && fromY >= moveFromY && toY <= moveToY) {
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
+						}
+					} else {
+						if (fromX >= moveFromX & toX <= moveToX && fromY >= moveFromY & toY <= moveToY) {
+							if (!strokeList.includes(stroke)) {
+								strokeList.push(stroke);
+							}
+						}
+					}
 
 				}
  			});
@@ -209,10 +244,15 @@ function moveItems() {
 	// Update each and every dot
 	strokeList.forEach(stroke => {
 		stroke.forEach(dot => {
-			dot.fromX = dot.fromX + Xmove;
-			dot.toX = dot.toX + Xmove;
-			dot.fromY = dot.fromY + Ymove;
-			dot.toY = dot.toY + Ymove;
+			if (dot.tool === 'pencil') {
+				dot.fromX = dot.fromX + Xmove;
+				dot.toX = dot.toX + Xmove;
+				dot.fromY = dot.fromY + Ymove;
+				dot.toY = dot.toY + Ymove;
+			} else if (dot.tool === 'circle') {
+				dot.arc.xPos = dot.arc.xPos + Xmove;
+				dot.arc.yPos = dot.arc.yPos + Ymove;
+			}
 		});
 	});
 
