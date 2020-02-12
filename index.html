@@ -3,6 +3,7 @@
 	
 	<head>
 		<link rel="stylesheet" type="text/css" href="style.css" />
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 		<script src="drawio.js"></script>
 	</head>
 	
@@ -11,36 +12,42 @@
 
 			<div id="canvas-options">
 
-				<a href="#" onclick="undo()">Undo Draw</a>
-				<a href="#" onclick="redo()">Redo Draw</a>
-				<a href="#" onclick="toggleMove()">Toggle move</a>
+				<a href="#" class="undo" onclick="undo()">Undo Draw</a>
+				<a href="#" class="undo" onclick="redo()">Redo Draw</a>
+				<a href="#" class="undo" onclick="toggleMove()">Toggle move</a>
 
-				<select onchange="setLineWidth(this.value)">
-  					<option value="2">2</option>
-  					<option value="4">4</option>
-  					<option value="6">6</option>
-  					<option value="8">8</option>
-  					<option value="10">10</option>
-  					<option value="12">12</option>
+				<select class="select-css" onchange="setLineWidth(this.value)">
+					<option value="" selected disabled hidden>Pen Thickness</option>
+					<option value="2">2</option>
+					<option value="4">4</option>
+					<option value="6">6</option>
+					<option value="8">8</option>
+					<option value="10">10</option>
+					<option value="12">12</option>
 				</select>
 
 
-				<select onchange="setLineColor(this.value)">
-					<option value="black">Black</option>
-  					<option value="blue">Blue</option>
-  					<option value="red">Red</option>
-  					<option value="yellow">Yellow</option>
+				<select class="select-css" onchange="setLineColor(this.value)">
+					<option value="" selected disabled hidden>Color</option>
+					<option value="black" class="ColorBlack">Black</option>
+					<option value="blue" class="ColorBlue">Blue</option>
+					<option value="red" class="ColorRed">Red</option>
+					<option value="yellow" class="ColorYellow">Yellow</option>
 				</select>
 
-				<select onchange="setPencilType(this.value)">
+				<select class="select-css" onchange="setPencilType(this.value)">
 					<option value="pencil">Pencil</option>
-  					<option value="circle">Circle</option>
-  					<option value="rectangle">Rectangle</option>
+					<option value="line">Line</option>
+					<option value="circle">Circle</option>
+					<option value="rectangle">Rectangle</option>
 				</select>
 
-				<button onclick="savePainting()">Save Painting</button>
+				<a href="#" class="undo" onclick="textInput()">Text</a>
 
-				<select id="saved" onchange="loadPainting(this.value)">
+				<button class="undo save-painting" onclick="savePainting()">Save Painting</button>
+
+				<select class="select-css load-painting" id="saved" onchange="loadPainting(this.value)">
+					<option value="" selected disabled hidden>Load</option>
 				</select>
 
 			</div>

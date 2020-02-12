@@ -14,7 +14,6 @@ var canvas,
     strokeList = [],
     move = false,
     areaSelected = false;
-    
 
 function paint() {
 
