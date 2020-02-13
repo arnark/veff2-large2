@@ -54,34 +54,69 @@ function paint() {
 			ATH: Ef maður ætlar að færa hluti (move) eftir að hafa dregið línu þá setur maður nýa line to á síðustu línu.
 			ATH: Ekki hægt að færa línurnar með move tólinu. 
 		*/
-		drawline = true
-		canvas.onmousedown = () => {
-			if (drawline) {
-				ctx.beginPath();
-				ctx.moveTo(startX, startY);
 
-				canvas.drawDot.fromX = mouse.x;
-				canvas.drawDot.fromY = mouse.y;
-				canvas.drawDot.moveTo = { fromX: startX, fromY: startY }
-				if (!canvas.drawStroke.includes(canvas.drawDot)) {
-					canvas.drawStroke.push(canvas.drawDot);
-				}
-			}
-		}
-		canvas.onmouseup = () => {
-			ctx.lineTo(mouse.x, mouse.y);
-			ctx.stroke();
+		// Create new line if it doesn't exist already 
+		if (canvas.drawStroke.length == 0) {
+				canvas.drawDot.toX = mouse.x;
+				canvas.drawDot.toY = mouse.y;
 
-			canvas.drawDot.toX = mouse.x;
-			canvas.drawDot.toY = mouse.y;
-			canvas.drawDot.lineTo = { toX: startX, toY: startY }
 			if (!canvas.drawStroke.includes(canvas.drawDot)) {
 				canvas.drawStroke.push(canvas.drawDot);
 			}
-			drawline = false
-			rePaint()
-			ctx.closePath();
 		}
+		
+
+		// Update the line end position
+		canvas.drawStroke[0].toX = mouse.x;
+		canvas.drawStroke[0].toY = mouse.y;
+
+		// Custom paint method while dragging line for animation
+		let dot = canvas.drawStroke[0];
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		rePaint()
+		ctx.lineWidth = dot.lineWidth;
+		ctx.strokeStyle = dot.strokeStyle;
+		ctx.beginPath();
+		ctx.moveTo(dot.fromX, dot.fromY);
+		ctx.lineTo(dot.toX, dot.toY);
+		ctx.stroke();
+
+		// Reset drawDot
+		// canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
+
+		// if (!canvas.drawStroke.includes(canvas.drawDot)) {
+		// 	canvas.drawStroke.push(canvas.drawDot);
+		// }
+
+
+		// drawline = true
+		// canvas.onmousedown = () => {
+		// 	if (drawline) {
+		// 		ctx.beginPath();
+		// 		ctx.moveTo(startX, startY);
+// 
+		// 		canvas.drawDot.fromX = mouse.x;
+		// 		canvas.drawDot.fromY = mouse.y;
+		// 		canvas.drawDot.moveTo = { fromX: startX, fromY: startY }
+		// 		if (!canvas.drawStroke.includes(canvas.drawDot)) {
+		// 			canvas.drawStroke.push(canvas.drawDot);
+		// 		}
+		// 	}
+		// }
+		// canvas.onmouseup = () => {
+		// 	ctx.lineTo(mouse.x, mouse.y);
+		// 	ctx.stroke();
+// 
+		// 	canvas.drawDot.toX = mouse.x;
+		// 	canvas.drawDot.toY = mouse.y;
+		// 	canvas.drawDot.lineTo = { toX: startX, toY: startY }
+		// 	if (!canvas.drawStroke.includes(canvas.drawDot)) {
+		// 		canvas.drawStroke.push(canvas.drawDot);
+		// 	}
+		// 	drawline = false
+		// 	rePaint()
+		// 	ctx.closePath();
+		// }
 	}
 };
 
@@ -211,7 +246,7 @@ function moveItems() {
 
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
-				if (dot.tool === 'pencil') {
+				if (dot.tool === 'pencil' || dot.tool === 'line') {
 
 					// Check for all possible elements within selected area
 					if (height < 0) {
@@ -249,7 +284,6 @@ function moveItems() {
 					// Check if selected area contains a circle
 					if (height < 0) {
 						if (fromX >= moveFromX && fromY <= moveFromY) {
-							console.log("here")
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
@@ -284,7 +318,7 @@ function moveItems() {
 	// Update each and every dot
 	strokeList.forEach(stroke => {
 		stroke.forEach(dot => {
-			if (dot.tool === 'pencil') {
+			if (dot.tool === 'pencil' || dot.tool === 'line') {
 				dot.fromX = dot.fromX + Xmove;
 				dot.toX = dot.toX + Xmove;
 				dot.fromY = dot.fromY + Ymove;
