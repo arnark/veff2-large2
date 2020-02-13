@@ -13,10 +13,10 @@ body {
 }
 
 #canvas {
-	width: 100%;
-	height: 100%;
-	background-color: #fff;
-	
+	background-color: rgba(155, 155, 155, 0.2);
+	box-shadow: 1px 1px 1px;
+	margin: 0 auto;
+	display: block;
 }
 
 #canvas-move {
@@ -49,8 +49,7 @@ body {
 #canvas-options {
 	width: 100%;
 	height: 70px;
-	background: linear-gradient(to bottom, #D5DEE7 0%, #E8EBF2 50%, #E2E7ED 100%), linear-gradient(to bottom, rgba(0,0,0,0.02) 50%, rgba(255,255,255,0.02) 61%, rgba(0,0,0,0.02) 73%), linear-gradient(33deg, rgba(255,255,255,0.20) 0%, rgba(0,0,0,0.20) 100%);
-	background-blend-mode: normal,color-burn;
+	background-image: linear-gradient(to top, #dae1e9 0%, rgb(231, 223, 223) 80%);
 	border-bottom-left-radius: 2px;
 	border-bottom-right-radius: 2px;
 	border-bottom: 0.6px solid #838383;
@@ -90,7 +89,6 @@ body {
 	position:relative;
 	top:1px;
 }
-
 .undo:first-child {
 	margin-left: 1%;
 }
@@ -102,7 +100,8 @@ body {
 	font-weight:bold;
 	color:#666666;
 	cursor:pointer;
-    line-height: 1.5;
+	line-height: 2.6;
+	float: left;
     padding: .6em 1.4em .5em .8em;
     width: 6rem;
     box-sizing: border-box;
@@ -148,21 +147,78 @@ body {
 
 /* Drop down colors */
 .ColorBlack {
-	background: black;
-	color: white;
+	color: black;
 }
 
 .ColorBlue {
-	background: #0004EF;
-	color: white;
-}
-
-.ColorRed {
-	background: #F6F622;
-	color: white;
+	color: #0004EF;
 }
 
 .ColorYellow {
-	background: #CD0F0F;
-	color: white;
+	color: #F6F622;
+}
+
+.ColorRed {
+	color: #CD0F0F;
+}
+
+/* Icons in menu*/
+.icon {
+	display: inline-block;
+	font-size: 2em;
+	float: left;
+	width: 3rem;
+	height: 3rem;
+	margin: auto;
+	transition: color .5s;
+}
+.iconTwo {
+	float:right !important;
+}
+.icon:hover {
+	color: rgb(235, 200, 135);
+	cursor: pointer;
+}
+.icon.selected {
+	color: yellow;
+}
+
+/* Margin classes used */
+ .un {
+	 margin-left: 1%;
+ }
+
+ .re {
+	 margin-right: 5%;
+ }
+
+ /*For the color icons to have different selected color*/
+.selectedTwo {
+	color: rgb(165, 158, 158);
+}
+
+/* for the color icons so the jquery selector does not count them in*/
+.iconColor {
+	display: inline-block;
+	font-size: 2em;
+	float: left;
+	width: 3rem;
+	height: 3rem;
+	margin: auto;
+	transition: color .5s;
+}
+
+
+/* Center Icons inside div container */
+.circle {
+	width: 2.5rem;
+	height: 2.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* Color picker in main menu */
+.color-picker {
+	font-family: 'FontAwesome';
 }

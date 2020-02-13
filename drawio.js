@@ -1,19 +1,19 @@
 var canvas,
-    ctx,
-    mouse,
-    tool,
-    drawStack,
-    undoStack,
-    startX,
-    startY,
-    moveFromX,
-    moveToX,
-    moveFromY,
-    moveToY,
-    savedPaintings,
-    strokeList = [],
-    move = false,
-    areaSelected = false;
+	ctx,
+	mouse,
+	tool,
+	drawStack,
+	undoStack,
+	startX,
+	startY,
+	moveFromX,
+	moveToX,
+	moveFromY,
+	moveToY,
+	savedPaintings,
+	strokeList = [],
+	move = false,
+	areaSelected = false;
 
 function paint() {
 
@@ -24,15 +24,15 @@ function paint() {
 
 	if (tool === 'pencil') {
 		ctx.lineTo(mouse.x, mouse.y);
-    	ctx.stroke();
-	
-    	// Push the drawDot to the drawStroke array
-    	canvas.drawDot.toX = mouse.x;
-    	canvas.drawDot.toY = mouse.y;
-		if(!canvas.drawStroke.includes(canvas.drawDot)) {
+		ctx.stroke();
+
+		// Push the drawDot to the drawStroke array
+		canvas.drawDot.toX = mouse.x;
+		canvas.drawDot.toY = mouse.y;
+		if (!canvas.drawStroke.includes(canvas.drawDot)) {
 			canvas.drawStroke.push(canvas.drawDot);
 		}
-	
+
 		// Reset drawDot
 		canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
 
@@ -45,11 +45,44 @@ function paint() {
 
 		// Push circle to drawStroke array
 		canvas.drawDot.arc = { xPos: startX, yPos: startY, radius: radius, sAngle: 0, eAngle: 2 * Math.PI };
-		if(!canvas.drawStroke.includes(canvas.drawDot)) {
+		if (!canvas.drawStroke.includes(canvas.drawDot)) {
 			canvas.drawStroke.push(canvas.drawDot);
 		}
-	}
+	} else if (tool === 'line') {
+		/*
+			ATH: Það er hægt að gera linu ef maður dregur frá a til b, en línan sést ekki fyrr en maður sleppir.
+			ATH: Ef maður ætlar að færa hluti (move) eftir að hafa dregið línu þá setur maður nýa line to á síðustu línu.
+			ATH: Ekki hægt að færa línurnar með move tólinu. 
+		*/
+		drawline = true
+		canvas.onmousedown = () => {
+			if (drawline) {
+				ctx.beginPath();
+				ctx.moveTo(startX, startY);
 
+				canvas.drawDot.fromX = mouse.x;
+				canvas.drawDot.fromY = mouse.y;
+				canvas.drawDot.moveTo = { fromX: startX, fromY: startY }
+				if (!canvas.drawStroke.includes(canvas.drawDot)) {
+					canvas.drawStroke.push(canvas.drawDot);
+				}
+			}
+		}
+		canvas.onmouseup = () => {
+			ctx.lineTo(mouse.x, mouse.y);
+			ctx.stroke();
+
+			canvas.drawDot.toX = mouse.x;
+			canvas.drawDot.toY = mouse.y;
+			canvas.drawDot.lineTo = { toX: startX, toY: startY }
+			if (!canvas.drawStroke.includes(canvas.drawDot)) {
+				canvas.drawStroke.push(canvas.drawDot);
+			}
+			drawline = false
+			rePaint()
+			ctx.closePath();
+		}
+	}
 };
 
 function rePaint(stack = drawStack) {
@@ -65,16 +98,23 @@ function rePaint(stack = drawStack) {
 			if (dot.tool === 'pencil') {
 				ctx.lineWidth = dot.lineWidth;
 				ctx.strokeStyle = dot.strokeStyle;
-  				ctx.beginPath();
-    			ctx.moveTo(dot.fromX, dot.fromY);
-    			ctx.lineTo(dot.toX, dot.toY);
-    			ctx.stroke();
+				ctx.beginPath();
+				ctx.moveTo(dot.fromX, dot.fromY);
+				ctx.lineTo(dot.toX, dot.toY);
+				ctx.stroke();
 			} else if (dot.tool === 'circle') {
 				// console.log(dot);
 				ctx.lineWidth = dot.lineWidth;
 				ctx.strokeStyle = dot.strokeStyle;
 				ctx.beginPath();
 				ctx.arc(dot.arc.xPos, dot.arc.yPos, dot.arc.radius, dot.arc.sAngle, dot.arc.eAngle);
+				ctx.stroke();
+			} else if (dot.tool === 'line') {
+				ctx.lineWidth = dot.lineWidth;
+				ctx.strokeStyle = dot.strokeStyle;
+				ctx.beginPath();
+				ctx.moveTo(dot.fromX, dot.fromY);
+				ctx.lineTo(dot.toX, dot.toY);
 				ctx.stroke();
 			}
 
@@ -107,6 +147,7 @@ function setLineWidth(width) {
 }
 
 function setLineColor(colorCode) {
+	console.log(colorCode)
 	ctx.strokeStyle = colorCode;
 }
 
@@ -115,48 +156,48 @@ function setPencilType(pencilType) {
 }
 
 function removeSelectedArea() {
-    let selectedArea = document.getElementById("selected-area");
-    if (selectedArea) {
-    	selectedArea.remove();
-    }
-    document.getElementById("canvas-move").style.cursor = "move";
+	let selectedArea = document.getElementById("selected-area");
+	if (selectedArea) {
+		selectedArea.remove();
+	}
+	document.getElementById("canvas-move").style.cursor = "move";
 }
 
 function paintSelectedArea() {
 
 	moveFromX = startX;
-    moveToX = mouse.x;
-    moveFromY = startY;
-    moveToY = mouse.y;
+	moveToX = mouse.x;
+	moveFromY = startY;
+	moveToY = mouse.y;
 
 	if (!document.getElementById("selected-area")) {
 		let selectedAreaDiv = document.createElement("div");
-  		selectedAreaDiv.id = "selected-area";
-  		document.getElementById("canvas-container").appendChild(selectedAreaDiv);
+		selectedAreaDiv.id = "selected-area";
+		document.getElementById("canvas-container").appendChild(selectedAreaDiv);
 	}
 
 	let selectedArea = document.getElementById("selected-area");
 
 	// Default height and styles
-  	let height = moveToY - moveFromY;
-  	let width = moveToX - moveFromX;
-  	selectedArea.style.top = moveFromY + 100 + "px";
-  	selectedArea.style.left = moveFromX + "px";
+	let height = moveToY - moveFromY;
+	let width = moveToX - moveFromX;
+	selectedArea.style.top = moveFromY + 100 + "px";
+	selectedArea.style.left = moveFromX + "px";
 
-  	// Updated given circumstances
-  	if (height < 0) {
-  		height = moveFromY - 5 - moveToY;
-  		selectedArea.style.top = moveFromY + 100 - height + "px";
-  	}
+	// Updated given circumstances
+	if (height < 0) {
+		height = moveFromY - 5 - moveToY;
+		selectedArea.style.top = moveFromY + 100 - height + "px";
+	}
 
-  	if (width < 0) {
-  		width = moveFromX - 5 - moveToX;
-  		selectedArea.style.left = moveFromX - width + "px";
-  	}
+	if (width < 0) {
+		width = moveFromX - 5 - moveToX;
+		selectedArea.style.left = moveFromX - width + "px";
+	}
 
-  	// Set width and height
-  	selectedArea.style.height = height - 5 + "px";
-  	selectedArea.style.width = width - 5 + "px";
+	// Set width and height
+	selectedArea.style.height = height - 5 + "px";
+	selectedArea.style.width = width - 5 + "px";
 
 }
 
@@ -166,7 +207,7 @@ function moveItems() {
 	if (strokeList.length === 0) {
 
 		let height = moveToY - moveFromY;
-  		let width = moveToX - moveFromX;
+		let width = moveToX - moveFromX;
 
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
@@ -207,7 +248,7 @@ function moveItems() {
 
 					// Check if selected area contains a circle
 					if (height < 0) {
-						if (fromX >= moveFromX && fromY <= moveFromY ) {
+						if (fromX >= moveFromX && fromY <= moveFromY) {
 							console.log("here")
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
@@ -232,7 +273,7 @@ function moveItems() {
 					}
 
 				}
- 			});
+			});
 		});
 	}
 
@@ -263,7 +304,7 @@ function moveItems() {
 function toggleMove() {
 
 	// Reset default
-    areaSelected = false;
+	areaSelected = false;
 	strokeList = [];
 
 	if (move) {
@@ -295,9 +336,9 @@ function loadSavedPaintings() {
 	for (let i = 0; i < savedPaintings.length; i++) {
 		let savedOptions = document.getElementById("saved")
 		let option = document.createElement('option');
-    	option.value = i;
-    	option.innerHTML = i;
-    	savedOptions.appendChild(option);
+		option.value = i;
+		option.innerHTML = i;
+		savedOptions.appendChild(option);
 	};
 }
 
@@ -305,63 +346,62 @@ function init() {
 	// Initialize draw and undo stacks
 	drawStack = [];
 	undoStack = [];
-	
+
 	// Find the canvas element and set the size
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight - 100;
-	
+
 	// Initial draw tool settings
 	ctx.lineWidth = 10;
 	ctx.lineJoin = 'round';
 	ctx.lineCap = 'round';
 	ctx.strokeStyle = '#000';
 	tool = 'pencil';
-	mouse = {x: 0, y: 0};
+	mouse = { x: 0, y: 0 };
 
 	// Load saved paintings into dropdown
 	savedPaintings = JSON.parse(localStorage.getItem("paintings"));
-	if(savedPaintings === null) { savedPaintings = []; }
+	if (savedPaintings === null) { savedPaintings = []; }
 	loadSavedPaintings();
 
 	// Update mouse position on mousemove
-	canvas.addEventListener('mousemove', function(e) {
-	  mouse.x = e.pageX - this.offsetLeft;
-	  mouse.y = e.pageY - this.offsetTop;
+	canvas.addEventListener('mousemove', function (e) {
+		mouse.x = e.pageX - this.offsetLeft;
+		mouse.y = e.pageY - this.offsetTop;
 	}, false);
-	
+
 	// Mousedown / mousemove listener
-	canvas.addEventListener('mousedown', function(e) {
+	canvas.addEventListener('mousedown', function (e) {
 
 		startX = mouse.x;
 		startY = mouse.y;
-		
 		// Move is toggled
 		if (move === true) {
 			if (areaSelected === false) {
 				canvas.addEventListener('mousemove', paintSelectedArea, false);
 			} else {
-    			removeSelectedArea();
-    			strokeList = [];
+				removeSelectedArea();
+				strokeList = [];
 				canvas.addEventListener('mousemove', moveItems, false);
 			}
-			
-		} 
+
+		}
 		// Draw is toggled
 		else {
 			canvas.drawStroke = [];
 			canvas.drawDot = { fromX: mouse.x, fromY: mouse.y }
-		
-	    	ctx.beginPath();
-	    	ctx.moveTo(mouse.x, mouse.y);
-	 		paint();
-	    	canvas.addEventListener('mousemove', paint, false);
-	    }
+
+			ctx.beginPath();
+			ctx.moveTo(mouse.x, mouse.y);
+			paint();
+			canvas.addEventListener('mousemove', paint, false);
+		}
 	}, false);
-	
+
 	// Mouseup listener
-	canvas.addEventListener('mouseup', function() {
+	canvas.addEventListener('mouseup', function () {
 		// Move is toggled
 		if (move === true) {
 			if (areaSelected === false) {
@@ -373,11 +413,11 @@ function init() {
 				toggleMove();
 				canvas.removeEventListener('mousemove', moveItems, false);
 			}
-		} 
+		}
 		// Draw is toggled
 		else {
 			canvas.removeEventListener('mousemove', paint, false);
-	    	drawStack.push(canvas.drawStroke);
+			drawStack.push(canvas.drawStroke);
 		}
 
 	}, false);

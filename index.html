@@ -4,7 +4,7 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="style.css" />
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-		<script src="drawio.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
 	</head>
 	
 	<body>
@@ -12,7 +12,7 @@
 
 			<div id="canvas-options">
 
-				<a href="#" class="undo" onclick="undo()">Undo Draw</a>
+				<!--<a href="#" class="undo" onclick="undo()">Undo Draw</a>
 				<a href="#" class="undo" onclick="redo()">Redo Draw</a>
 				<a href="#" class="undo" onclick="toggleMove()">Toggle move</a>
 
@@ -24,27 +24,90 @@
 					<option value="8">8</option>
 					<option value="10">10</option>
 					<option value="12">12</option>
+				</select>-->
+
+				<div class="icon undo circle un" data-shape="undo" onclick="undo()">
+					<i class="fa fa-undo" aria-hidden="true"></i>
+				</div>
+
+				<div class="icon undo circle re" data-shape="redo" onclick="redo()">
+                	<i class="fa fa-rotate-right" aria-hidden="true"></i>
+            	</div>
+
+				<div class="icon undo circle" data-shape="circle" title="circle">
+					<i class="fa fa-circle-o" aria-hidden="true"></i>
+				</div>
+
+				<div class="icon undo circle" data-shape="rectangle" title="rectangle">
+                	<i class="fa fa-square-o" aria-hidden="true"></i>
+            	</div>
+
+				<div class="icon undo circle line" data-shape="line" title="line">
+                	<i class="fa fa-minus" aria-hidden="true"></i>
+            	</div>
+
+				<div class="icon undo circle re" data-shape="hand" title="move" onclick="toggleMove()">
+					<i class="fa fa-arrows" aria-hidden="true"></i>
+				</div>
+
+				<div class="icon undo circle" data-shape="pencil" title="pencil">
+                	<i class="fa fa-pencil" aria-hidden="true"></i>
+            	</div>
+
+				<select class="select-css" onchange="setLineWidth(this.value)">
+					<option value="" selected disabled hidden>Pen Thickness</option>
+					<option value="2">2</option>
+					<option value="4">4</option>
+					<option value="6">6</option>
+					<option value="8">8</option>
+					<option value="10">10</option>
+					<option value="12">12</option>
 				</select>
-
-
+				<!--
 				<select class="select-css" onchange="setLineColor(this.value)">
 					<option value="" selected disabled hidden>Color</option>
 					<option value="black" class="ColorBlack">Black</option>
 					<option value="blue" class="ColorBlue">Blue</option>
 					<option value="red" class="ColorRed">Red</option>
 					<option value="yellow" class="ColorYellow">Yellow</option>
-				</select>
+				</select>-->
 
+				<div class="iconColor undo circle ColorBlack colorpick" data-shape="colorBlack" title="black">
+					<i class="fa fa-paint-brush" aria-hidden="true"></i>
+				</div>
+
+				<div class="iconColor undo circle ColorBlue colorpick" data-shape="colorBlue" title="blue">
+					<i class="fa fa-paint-brush" aria-hidden="true"></i>
+				</div>
+
+				<div class="iconColor undo circle ColorYellow colorpick" data-shape="colorYellow" title="yellow">
+					<i class="fa fa-paint-brush" aria-hidden="true"></i>
+				</div>
+
+				<div class="iconColor undo circle ColorRed colorpick re" data-shape="colorRed" title="red">
+					<i class="fa fa-paint-brush" aria-hidden="true"></i>
+				</div>
+
+				<div class="icon undo circle un" data-shape="text" title="text" onclick="textInput()">
+					<i class="fa fa-etsy" aria-hidden="true"></i>
+				</div>
+
+				<div class="icon undo iconTwo circle re" data-shape="save" onclick="savePainting()">
+					<i class="fa fa-save" aria-hidden="true"></i>
+				</div>
+
+				<div class="icon undo iconTwo circle" data-shape="load">
+					<i class="fa fa-upload" aria-hidden="true"></i>
+				</div>
+				<!--
 				<select class="select-css" onchange="setPencilType(this.value)">
 					<option value="pencil">Pencil</option>
 					<option value="line">Line</option>
 					<option value="circle">Circle</option>
 					<option value="rectangle">Rectangle</option>
-				</select>
+				</select>-->
 
-				<a href="#" class="undo" onclick="textInput()">Text</a>
-
-				<button class="undo save-painting" onclick="savePainting()">Save Painting</button>
+				<!--<button class="undo save-painting" onclick="savePainting()">Save Painting</button>-->
 
 				<select class="select-css load-painting" id="saved" onchange="loadPainting(this.value)">
 					<option value="" selected disabled hidden>Load</option>
@@ -53,10 +116,15 @@
 			</div>
 
 			<div id="canvas-container">
-				<canvas id="canvas"></canvas>
+				<canvas id="canvas" width="800" height="600"></canvas>
 			</div>
 
 		</div>
+
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js" charset="utf-8"></script>
+		<script src="drawio.js"></script>
+		<script src="icon.js"></script>
 	</body>
 
 </html>
