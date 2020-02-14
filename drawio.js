@@ -49,11 +49,6 @@ function paint() {
 			canvas.drawStroke.push(canvas.drawDot);
 		}
 	} else if (tool === 'line') {
-		/*
-			ATH: Það er hægt að gera linu ef maður dregur frá a til b, en línan sést ekki fyrr en maður sleppir.
-			ATH: Ef maður ætlar að færa hluti (move) eftir að hafa dregið línu þá setur maður nýa line to á síðustu línu.
-			ATH: Ekki hægt að færa línurnar með move tólinu. 
-		*/
 
 		// Create new line if it doesn't exist already 
 		if (canvas.drawStroke.length == 0) {
@@ -65,7 +60,6 @@ function paint() {
 			}
 		}
 		
-
 		// Update the line end position
 		canvas.drawStroke[0].toX = mouse.x;
 		canvas.drawStroke[0].toY = mouse.y;
@@ -80,6 +74,13 @@ function paint() {
 		ctx.moveTo(dot.fromX, dot.fromY);
 		ctx.lineTo(dot.toX, dot.toY);
 		ctx.stroke();
+
+
+		/*
+			ATH: Það er hægt að gera linu ef maður dregur frá a til b, en línan sést ekki fyrr en maður sleppir.
+			ATH: Ef maður ætlar að færa hluti (move) eftir að hafa dregið línu þá setur maður nýa line to á síðustu línu.
+			ATH: Ekki hægt að færa línurnar með move tólinu. 
+		*/
 
 		// Reset drawDot
 		// canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
@@ -117,6 +118,7 @@ function paint() {
 		// 	rePaint()
 		// 	ctx.closePath();
 		// }
+		
 	}
 };
 
@@ -130,7 +132,7 @@ function rePaint(stack = drawStack) {
 	// Completely repaint each dot on the canvas from the drawStack
 	stack.forEach(stroke => {
 		stroke.forEach(dot => {
-			if (dot.tool === 'pencil') {
+			if (dot.tool === 'pencil' || dot.tool === 'line') {
 				ctx.lineWidth = dot.lineWidth;
 				ctx.strokeStyle = dot.strokeStyle;
 				ctx.beginPath();
@@ -144,15 +146,7 @@ function rePaint(stack = drawStack) {
 				ctx.beginPath();
 				ctx.arc(dot.arc.xPos, dot.arc.yPos, dot.arc.radius, dot.arc.sAngle, dot.arc.eAngle);
 				ctx.stroke();
-			} else if (dot.tool === 'line') {
-				ctx.lineWidth = dot.lineWidth;
-				ctx.strokeStyle = dot.strokeStyle;
-				ctx.beginPath();
-				ctx.moveTo(dot.fromX, dot.fromY);
-				ctx.lineTo(dot.toX, dot.toY);
-				ctx.stroke();
 			}
-
 		});
 	});
 
@@ -252,21 +246,25 @@ function moveItems() {
 					if (height < 0) {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
 							if (!strokeList.includes(stroke)) {
+								console.log(1)
 								strokeList.push(stroke);
 							}
 						} else if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
+							console.log(2)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else if (width < 0) {
 						if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+							console.log(3)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+							console.log(4)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
