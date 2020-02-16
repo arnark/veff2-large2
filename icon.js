@@ -10,6 +10,5 @@ $('.colorpick').on('click', function () {
     $('.colorpick').removeClass('selectedTwo');
     $(this).addClass('selectedTwo');
     var colorTitle = $(this).attr('title');
-    console.log(colorTitle)
     $(this).click(setLineColor(colorTitle));
 });

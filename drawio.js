@@ -13,7 +13,13 @@ var canvas,
 	savedPaintings,
 	strokeList = [],
 	move = false,
-	areaSelected = false;
+	areaSelected = false,
+	textInput = false,
+	textfont,	//      <------------------------- Text Input
+	fontsize,	//      <------------------------- Text Input
+	startingPosX, //      <------------------------- Text Input Space
+	mouseX,   //      <------------------------- Text Input
+	mouseY;		//      <------------------------- Text Input
 
 function paint() {
 
@@ -21,6 +27,7 @@ function paint() {
 	canvas.drawDot.lineWidth = ctx.lineWidth;
 	canvas.drawDot.strokeStyle = ctx.strokeStyle;
 	canvas.drawDot.tool = tool;
+	textInput = false;
 
 	if (tool === 'pencil') {
 		ctx.lineTo(mouse.x, mouse.y);
@@ -50,7 +57,7 @@ function paint() {
 		}
 	} else if (tool === 'line') {
 
-		// Create new line if it doesn't exist already 
+		// Create new line if it doesn't exist already
 		if (canvas.drawStroke.length == 0) {
 				canvas.drawDot.toX = mouse.x;
 				canvas.drawDot.toY = mouse.y;
@@ -75,52 +82,20 @@ function paint() {
 		ctx.lineTo(dot.toX, dot.toY);
 		ctx.stroke();
 
-
-		/*
-			ATH: Það er hægt að gera linu ef maður dregur frá a til b, en línan sést ekki fyrr en maður sleppir.
-			ATH: Ef maður ætlar að færa hluti (move) eftir að hafa dregið línu þá setur maður nýa line to á síðustu línu.
-			ATH: Ekki hægt að færa línurnar með move tólinu. 
-		*/
-
-		// Reset drawDot
-		// canvas.drawDot = { fromX: mouse.x, fromY: mouse.y };
-
-		// if (!canvas.drawStroke.includes(canvas.drawDot)) {
-		// 	canvas.drawStroke.push(canvas.drawDot);
-		// }
-
-
-		// drawline = true
-		// canvas.onmousedown = () => {
-		// 	if (drawline) {
-		// 		ctx.beginPath();
-		// 		ctx.moveTo(startX, startY);
-// 
-		// 		canvas.drawDot.fromX = mouse.x;
-		// 		canvas.drawDot.fromY = mouse.y;
-		// 		canvas.drawDot.moveTo = { fromX: startX, fromY: startY }
-		// 		if (!canvas.drawStroke.includes(canvas.drawDot)) {
-		// 			canvas.drawStroke.push(canvas.drawDot);
-		// 		}
-		// 	}
-		// }
-		// canvas.onmouseup = () => {
-		// 	ctx.lineTo(mouse.x, mouse.y);
-		// 	ctx.stroke();
-// 
-		// 	canvas.drawDot.toX = mouse.x;
-		// 	canvas.drawDot.toY = mouse.y;
-		// 	canvas.drawDot.lineTo = { toX: startX, toY: startY }
-		// 	if (!canvas.drawStroke.includes(canvas.drawDot)) {
-		// 		canvas.drawStroke.push(canvas.drawDot);
-		// 	}
-		// 	drawline = false
-		// 	rePaint()
-		// 	ctx.closePath();
-		// }
-		
+	} else if (tool = "text") {
+		textInput = true;		//       <------------------------- Text Input
 	}
 };
+
+function setFontSize(fontsizee) {
+	fontsize = fontsizee
+	ctx.font = `${fontsize}px ${(textfont ? textfont : 'Arial')}`
+}
+
+function setTextFont(textfontt) {
+	textfont = textfontt
+	ctx.font = `${(fontsize ? fontsize : '12')}px ${textfont}`
+}
 
 function rePaint(stack = drawStack) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -176,8 +151,8 @@ function setLineWidth(width) {
 }
 
 function setLineColor(colorCode) {
-	console.log(colorCode)
 	ctx.strokeStyle = colorCode;
+	ctx.fillStyle = colorCode   //       <------------------------- Text Input
 }
 
 function setPencilType(pencilType) {
@@ -392,6 +367,7 @@ function init() {
 	ctx.strokeStyle = '#000';
 	tool = 'pencil';
 	mouse = { x: 0, y: 0 };
+	canvas.setAttribute('tabindex','0'); // Án þessara línu virkar ekki keypress event 
 
 	// Load saved paintings into dropdown
 	savedPaintings = JSON.parse(localStorage.getItem("paintings"));
@@ -402,7 +378,31 @@ function init() {
 	canvas.addEventListener('mousemove', function (e) {
 		mouse.x = e.pageX - this.offsetLeft;
 		mouse.y = e.pageY - this.offsetTop;
+		return false
 	}, false);
+
+	// if the mouse is clocked store the x and y for input.     <------------------------- Text Input
+	canvas.addEventListener('click', function (e) {
+		mouseX = e.pageX - this.offsetLeft;
+		mouseY = e.pageY - this.offsetTop;
+		startingPosX = mouseX
+		return false
+	}, false);
+
+	// checks for keyboard input              <------------------------- Text Input
+	canvas.addEventListener('keydown', function(e) {
+		if (textInput === true) {
+			// if enter is pressed go to next line
+			if (e.keyCode === 13) {
+				mouseX = startingPosX;
+				mouseY += (fontsize ? parseInt(fontsize, 10) : 12) + 4;
+			// Excludes Caps and shift will return text Shift and CapsLock
+			} else if (e.keyCode !== 9 && e.keyCode !== 20) {
+				ctx.fillText(e.key, mouseX, mouseY);
+				mouseX += ctx.measureText(e.key).width;
+			}
+		}
+	}, false)
 
 	// Mousedown / mousemove listener
 	canvas.addEventListener('mousedown', function (e) {

@@ -81,19 +81,22 @@ body {
 	text-decoration:none;
 	text-shadow:0px 1px 0px #ffffff;
 }
+
 .undo:hover {
 	background:linear-gradient(to bottom, #e9e9e9 5%, #f9f9f9 100%);
 	background-color:#e9e9e9;
 }
+
 .undo:active {
 	position:relative;
 	top:1px;
 }
+
 .undo:first-child {
 	margin-left: 1%;
 }
 
-
+/*  Drop down menuinn */
 .select-css {
     font-size: 10px;
 	font-family:Arial;
@@ -119,13 +122,16 @@ body {
     background-position: right .7em top 50%, 0 0;
     background-size: .65em auto, 100%;
 }
+
 .select-css::-ms-expand {
     display: none;
 }
+
 .select-css:hover {
 	background:linear-gradient(to bottom, #e9e9e9 5%, #f9f9f9 100%);
 	background-color:#e9e9e9;
 }
+
 .select-css:focus {
     border-color: #aaa;
     box-shadow: 0 0 1px 3px rgba(59, 153, 252, .7);
@@ -133,8 +139,18 @@ body {
     color: #222; 
     outline: none;
 }
+
 .select-css option {
     font-weight:normal;
+}
+
+/* Load Dropdown */
+#saved {
+	width: 3.2rem;
+}
+
+#fontSize, #font {
+	width: 4.6rem;
 }
 
 /* Load and save painting */
@@ -189,7 +205,7 @@ body {
  }
 
  .re {
-	 margin-right: 5%;
+	 margin-right: 3%;
  }
 
  /*For the color icons to have different selected color*/
