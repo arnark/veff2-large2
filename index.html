@@ -12,20 +12,6 @@
 
 			<div id="canvas-options">
 
-				<!--<a href="#" class="undo" onclick="undo()">Undo Draw</a>
-				<a href="#" class="undo" onclick="redo()">Redo Draw</a>
-				<a href="#" class="undo" onclick="toggleMove()">Toggle move</a>
-
-				<select class="select-css" onchange="setLineWidth(this.value)">
-					<option value="" selected disabled hidden>Pen Thickness</option>
-					<option value="2">2</option>
-					<option value="4">4</option>
-					<option value="6">6</option>
-					<option value="8">8</option>
-					<option value="10">10</option>
-					<option value="12">12</option>
-				</select>-->
-
 				<div class="icon undo circle un" data-shape="undo" onclick="undo()">
 					<i class="fa fa-undo" aria-hidden="true"></i>
 				</div>
@@ -55,22 +41,13 @@
             	</div>
 
 				<select class="select-css" onchange="setLineWidth(this.value)">
-					<option value="" selected disabled hidden>Pen Thickness</option>
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
 					<option value="8">8</option>
-					<option value="10">10</option>
+					<option value="10" selected>10</option>
 					<option value="12">12</option>
 				</select>
-				<!--
-				<select class="select-css" onchange="setLineColor(this.value)">
-					<option value="" selected disabled hidden>Color</option>
-					<option value="black" class="ColorBlack">Black</option>
-					<option value="blue" class="ColorBlue">Blue</option>
-					<option value="red" class="ColorRed">Red</option>
-					<option value="yellow" class="ColorYellow">Yellow</option>
-				</select>-->
 
 				<div class="iconColor undo circle ColorBlack colorpick" data-shape="colorBlack" title="black">
 					<i class="fa fa-paint-brush" aria-hidden="true"></i>
@@ -93,10 +70,9 @@
 				</div>
 
 				<select id="fontSize" class="select-css" onchange="setFontSize(this.value)">
-					<option value="" selected disabled hidden>Font Size</option>
 					<option value="12">12px</option>
 					<option value="14">14px</option>
-					<option value="16">16px</option>
+					<option value="16" selected>16px</option>
 					<option value="18">18px</option>
 					<option value="20">20px</option>
 					<option value="24">24px</option>
@@ -106,8 +82,7 @@
 				</select>
 
 				<select id="font" class="select-css" onchange="setTextFont(this.value)">
-					<option value="" selected disabled hidden>Text font</option>
-					<option value="Arial, Helvetica, sans-serif">Arial</option>
+					<option value="Arial, Helvetica, sans-serif" selected>Arial</option>
 					<option value="Verdana">Verdana</option>
 					<option value="Times New Roman">Times New Roman</option>
 					<option value="Courier New">Courier New</option>
@@ -118,20 +93,6 @@
 				<div class="icon undo iconTwo circle re" data-shape="save" onclick="savePainting()">
 					<i class="fa fa-save" aria-hidden="true"></i>
 				</div>
-
-				<!--
-				<div class="icon undo iconTwo circle" data-shape="load">
-					<i class="fa fa-upload" aria-hidden="true"></i>
-				</div>
-
-				<select class="select-css" onchange="setPencilType(this.value)">
-					<option value="pencil">Pencil</option>
-					<option value="line">Line</option>
-					<option value="circle">Circle</option>
-					<option value="rectangle">Rectangle</option>
-				</select>-->
-
-				<!--<button class="undo save-painting" onclick="savePainting()">Save Painting</button>-->
 
 				<select class="select-css load-painting" id="saved" onchange="loadPainting(this.value)">
 					<option value="" selected disabled hidden>Load</option>
@@ -144,7 +105,6 @@
 			</div>
 
 		</div>
-
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js" charset="utf-8"></script>
 		<script src="drawio.js"></script>

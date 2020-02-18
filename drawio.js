@@ -11,23 +11,19 @@ var canvas,
 	moveFromY,
 	moveToY,
 	savedPaintings,
+	textFont,
+	fontSize,     
+	textInputStartX,
 	strokeList = [],
 	move = false,
-	areaSelected = false,
-	textInput = false,
-	textfont,	//      <------------------------- Text Input
-	fontsize,	//      <------------------------- Text Input
-	startingPosX, //      <------------------------- Text Input Space
-	mouseX,   //      <------------------------- Text Input
-	mouseY;		//      <------------------------- Text Input
+	areaSelected = false;
 
-function paint() {
+function paint(e = {}) {
 
 	// Common attributes
 	canvas.drawDot.lineWidth = ctx.lineWidth;
 	canvas.drawDot.strokeStyle = ctx.strokeStyle;
 	canvas.drawDot.tool = tool;
-	textInput = false;
 
 	if (tool === 'pencil') {
 		ctx.lineTo(mouse.x, mouse.y);
@@ -55,6 +51,7 @@ function paint() {
 		if (!canvas.drawStroke.includes(canvas.drawDot)) {
 			canvas.drawStroke.push(canvas.drawDot);
 		}
+
 	} else if (tool === 'line') {
 
 		// Create new line if it doesn't exist already
@@ -71,10 +68,10 @@ function paint() {
 		canvas.drawStroke[0].toX = mouse.x;
 		canvas.drawStroke[0].toY = mouse.y;
 
-		// Custom paint method while dragging line for animation
+		// Custom paint method while dragging line for animation		
 		let dot = canvas.drawStroke[0];
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		rePaint()
+		rePaint();
 		ctx.lineWidth = dot.lineWidth;
 		ctx.strokeStyle = dot.strokeStyle;
 		ctx.beginPath();
@@ -82,27 +79,64 @@ function paint() {
 		ctx.lineTo(dot.toX, dot.toY);
 		ctx.stroke();
 
-	} else if (tool = "text") {
-		textInput = true;		//       <------------------------- Text Input
+	} else if (tool === 'text' && 'key' in e) {
+		// If enter is pressed go to next line
+		if (e.keyCode === 13) {
+
+			canvas.drawDot = {};
+			startX = textInputStartX;
+			startY += (fontSize ? parseInt(fontSize, 10) : 12) + 4;
+
+			// DrawDot attributes
+			canvas.drawDot.fromX = startX;
+			canvas.drawDot.fromY = startY;
+			canvas.drawDot.toX = startX + ctx.measureText(e.key).width;
+			canvas.drawDot.toY = parseInt(startY) + parseInt(fontSize);
+			canvas.drawDot.font = `${(fontSize ? fontSize : '12')}px ${(textFont ? textFont : 'Arial')}`;
+			canvas.drawDot.fillStyle = ctx.fillStyle;
+			canvas.drawDot.text = '';
+
+			if (!canvas.drawStroke.includes(canvas.drawDot)) {
+				canvas.drawStroke.push(canvas.drawDot);
+			}
+
+		}
+		// Excludes Caps and shift will return text Shift and CapsLock
+		else if (e.keyCode !== 9 && e.keyCode !== 20 && e.keyCode !== 16) {
+
+			if (canvas.drawStroke.length == 0) {
+				// DrawDot attributes
+				canvas.drawDot.fromX = startX;
+				canvas.drawDot.fromY = startY;
+				canvas.drawDot.toX = startX + ctx.measureText(e.key).width;
+				canvas.drawDot.toY = parseInt(startY) + parseInt(fontSize);
+				canvas.drawDot.font = `${(fontSize ? fontSize : '12')}px ${(textFont ? textFont : 'Arial')}`;
+				canvas.drawDot.fillStyle = ctx.fillStyle;
+				canvas.drawDot.text = '';
+
+				if (!canvas.drawStroke.includes(canvas.drawDot)) {
+					canvas.drawStroke.push(canvas.drawDot);
+				}
+			}
+
+			// Update the line end position
+			canvas.drawStroke[canvas.drawStroke.length - 1].text += e.key;
+			canvas.drawStroke[canvas.drawStroke.length - 1].toX = startX + ctx.measureText(canvas.drawStroke[canvas.drawStroke.length - 1].text).width;
+			//canvas.drawStroke[canvas.drawStroke.length - 1].toY = ctx.measureText(canvas.drawStroke[canvas.drawStroke.length - 1].text).height;
+			rePaint();
+			startX += ctx.measureText(e.key).width;
+		}
 	}
 };
-
-function setFontSize(fontsizee) {
-	fontsize = fontsizee
-	ctx.font = `${fontsize}px ${(textfont ? textfont : 'Arial')}`
-}
-
-function setTextFont(textfontt) {
-	textfont = textfontt
-	ctx.font = `${(fontsize ? fontsize : '12')}px ${textfont}`
-}
 
 function rePaint(stack = drawStack) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	// Preserver current settings
 	let currLineWidth = ctx.lineWidth;
-	let currStrokeStyle = ctx.strokeStyle
+	let currStrokeStyle = ctx.strokeStyle;
+	let oldFont = ctx.font;
+	let oldFillStyle = ctx.fillStyle;
 
 	// Completely repaint each dot on the canvas from the drawStack
 	stack.forEach(stroke => {
@@ -115,12 +149,15 @@ function rePaint(stack = drawStack) {
 				ctx.lineTo(dot.toX, dot.toY);
 				ctx.stroke();
 			} else if (dot.tool === 'circle') {
-				// console.log(dot);
 				ctx.lineWidth = dot.lineWidth;
 				ctx.strokeStyle = dot.strokeStyle;
 				ctx.beginPath();
 				ctx.arc(dot.arc.xPos, dot.arc.yPos, dot.arc.radius, dot.arc.sAngle, dot.arc.eAngle);
 				ctx.stroke();
+			} else if (dot.tool === 'text') {
+				ctx.font = dot.font;
+				ctx.fillStyle = dot.fillStyle;
+				ctx.fillText(dot.text, dot.fromX, dot.fromY);
 			}
 		});
 	});
@@ -128,6 +165,8 @@ function rePaint(stack = drawStack) {
 	// Revert to old settings
 	ctx.lineWidth = currLineWidth;
 	ctx.strokeStyle = currStrokeStyle;
+	ctx.font = oldFont;
+	ctx.fillStyle = oldFillStyle;
 };
 
 function undo() {
@@ -152,11 +191,21 @@ function setLineWidth(width) {
 
 function setLineColor(colorCode) {
 	ctx.strokeStyle = colorCode;
-	ctx.fillStyle = colorCode   //       <------------------------- Text Input
+	ctx.fillStyle = colorCode;
 }
 
 function setPencilType(pencilType) {
 	tool = pencilType;
+}
+
+function setFontSize(_fontSize) {
+	fontSize = _fontSize;
+	ctx.font = `${fontSize}px ${(textFont ? textFont : 'Arial')}`;
+}
+
+function setTextFont(_textFont) {
+	textFont = _textFont;
+	ctx.font = `${(fontSize ? fontSize : '12')}px ${textFont}`;
 }
 
 function removeSelectedArea() {
@@ -185,13 +234,13 @@ function paintSelectedArea() {
 	// Default height and styles
 	let height = moveToY - moveFromY;
 	let width = moveToX - moveFromX;
-	selectedArea.style.top = moveFromY + 100 + "px";
+	selectedArea.style.top = moveFromY + 70 + "px";
 	selectedArea.style.left = moveFromX + "px";
 
 	// Updated given circumstances
 	if (height < 0) {
 		height = moveFromY - 5 - moveToY;
-		selectedArea.style.top = moveFromY + 100 - height + "px";
+		selectedArea.style.top = moveFromY + 70 - height + "px";
 	}
 
 	if (width < 0) {
@@ -215,7 +264,7 @@ function moveItems() {
 
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
-				if (dot.tool === 'pencil' || dot.tool === 'line') {
+				if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text') {
 
 					// Check for all possible elements within selected area
 					if (height < 0) {
@@ -280,6 +329,7 @@ function moveItems() {
 					}
 
 				}
+
 			});
 		});
 	}
@@ -291,7 +341,7 @@ function moveItems() {
 	// Update each and every dot
 	strokeList.forEach(stroke => {
 		stroke.forEach(dot => {
-			if (dot.tool === 'pencil' || dot.tool === 'line') {
+			if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text') {
 				dot.fromX = dot.fromX + Xmove;
 				dot.toX = dot.toX + Xmove;
 				dot.fromY = dot.fromY + Ymove;
@@ -328,6 +378,7 @@ function toggleMove() {
 function savePainting() {
 	savedPaintings.push(drawStack);
 	localStorage.setItem("paintings", JSON.stringify(savedPaintings));
+	alert("Painting saved successfully!");
 }
 
 function loadPainting(index) {
@@ -350,6 +401,7 @@ function loadSavedPaintings() {
 }
 
 function init() {
+
 	// Initialize draw and undo stacks
 	drawStack = [];
 	undoStack = [];
@@ -358,7 +410,7 @@ function init() {
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
 	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight - 100;
+	canvas.height = window.innerHeight - 70;
 
 	// Initial draw tool settings
 	ctx.lineWidth = 10;
@@ -367,7 +419,13 @@ function init() {
 	ctx.strokeStyle = '#000';
 	tool = 'pencil';
 	mouse = { x: 0, y: 0 };
-	canvas.setAttribute('tabindex','0'); // Án þessara línu virkar ekki keypress event 
+
+	// Text input
+	canvas.setAttribute('tabindex','0');
+	ctx.font ='16px Arial';
+	ctx.fillStyle = '#000';
+	textFont = 'Arial';
+	fontSize = '16';
 
 	// Load saved paintings into dropdown
 	savedPaintings = JSON.parse(localStorage.getItem("paintings"));
@@ -378,37 +436,20 @@ function init() {
 	canvas.addEventListener('mousemove', function (e) {
 		mouse.x = e.pageX - this.offsetLeft;
 		mouse.y = e.pageY - this.offsetTop;
-		return false
 	}, false);
 
-	// if the mouse is clocked store the x and y for input.     <------------------------- Text Input
-	canvas.addEventListener('click', function (e) {
-		mouseX = e.pageX - this.offsetLeft;
-		mouseY = e.pageY - this.offsetTop;
-		startingPosX = mouseX
-		return false
-	}, false);
-
-	// checks for keyboard input              <------------------------- Text Input
+	// Text input listener
 	canvas.addEventListener('keydown', function(e) {
-		if (textInput === true) {
-			// if enter is pressed go to next line
-			if (e.keyCode === 13) {
-				mouseX = startingPosX;
-				mouseY += (fontsize ? parseInt(fontsize, 10) : 12) + 4;
-			// Excludes Caps and shift will return text Shift and CapsLock
-			} else if (e.keyCode !== 9 && e.keyCode !== 20) {
-				ctx.fillText(e.key, mouseX, mouseY);
-				mouseX += ctx.measureText(e.key).width;
-			}
-		}
-	}, false)
+		paint(e);
+	}, false);
 
 	// Mousedown / mousemove listener
 	canvas.addEventListener('mousedown', function (e) {
 
 		startX = mouse.x;
 		startY = mouse.y;
+		textInputStartX = mouse.x;
+
 		// Move is toggled
 		if (move === true) {
 			if (areaSelected === false) {
@@ -418,8 +459,7 @@ function init() {
 				strokeList = [];
 				canvas.addEventListener('mousemove', moveItems, false);
 			}
-
-		}
+		} 
 		// Draw is toggled
 		else {
 			canvas.drawStroke = [];
@@ -430,10 +470,12 @@ function init() {
 			paint();
 			canvas.addEventListener('mousemove', paint, false);
 		}
+
 	}, false);
 
 	// Mouseup listener
 	canvas.addEventListener('mouseup', function () {
+
 		// Move is toggled
 		if (move === true) {
 			if (areaSelected === false) {
