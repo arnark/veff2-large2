@@ -126,6 +126,30 @@ function paint(e = {}) {
 			rePaint();
 			startX += ctx.measureText(e.key).width;
 		}
+	} else if (tool === 'rectangle') {
+
+		// Create new rect drawStroke if it doesn't exist
+		if (canvas.drawStroke.length == 0) {
+
+			canvas.drawDot.fromX = startX;
+			canvas.drawDot.fromY = startY;
+			canvas.drawDot.toX = - startX + mouse.x;
+			canvas.drawDot.toY = - startY + mouse.y;
+
+			if (!canvas.drawStroke.includes(canvas.drawDot)) {
+				canvas.drawStroke.push(canvas.drawDot);
+			}
+		}
+		
+		canvas.drawStroke[0].fromX = startX;
+		canvas.drawStroke[0].fromY = startY;
+		canvas.drawStroke[0].toX = - startX + mouse.x;
+		canvas.drawStroke[0].toY = - startY + mouse.y;
+
+		rePaint();
+		ctx.beginPath();
+		ctx.rect(startX, startY, - startX + mouse.x, - startY + mouse.y);
+		ctx.stroke();
 	}
 };
 
@@ -158,6 +182,10 @@ function rePaint(stack = drawStack) {
 				ctx.font = dot.font;
 				ctx.fillStyle = dot.fillStyle;
 				ctx.fillText(dot.text, dot.fromX, dot.fromY);
+			} else if (dot.tool === 'rectangle') {
+				ctx.beginPath();
+				ctx.rect(dot.fromX, dot.fromY, dot.toX, dot.toY);
+				ctx.stroke();
 			}
 		});
 	});
@@ -264,31 +292,27 @@ function moveItems() {
 
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
-				if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text') {
+				if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text' || dot.tool === 'rectangle') {
 
 					// Check for all possible elements within selected area
 					if (height < 0) {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
 							if (!strokeList.includes(stroke)) {
-								console.log(1)
 								strokeList.push(stroke);
 							}
 						} else if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
-							console.log(2)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else if (width < 0) {
 						if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
-							console.log(3)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
-							console.log(4)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
@@ -335,20 +359,23 @@ function moveItems() {
 	}
 
 	// Get relative movement pixels to where the users clicks
-	let Xmove = - startX + mouse.x;
-	let Ymove = - startY + mouse.y;
+	let xMove = - startX + mouse.x;
+	let yMove = - startY + mouse.y;
 
 	// Update each and every dot
 	strokeList.forEach(stroke => {
 		stroke.forEach(dot => {
 			if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text') {
-				dot.fromX = dot.fromX + Xmove;
-				dot.toX = dot.toX + Xmove;
-				dot.fromY = dot.fromY + Ymove;
-				dot.toY = dot.toY + Ymove;
+				dot.fromX += xMove;
+				dot.toX += xMove;
+				dot.fromY += yMove;
+				dot.toY += yMove;
 			} else if (dot.tool === 'circle') {
-				dot.arc.xPos = dot.arc.xPos + Xmove;
-				dot.arc.yPos = dot.arc.yPos + Ymove;
+				dot.arc.xPos += xMove;
+				dot.arc.yPos += yMove;
+			} else if (dot.tool === 'rectangle') {
+				dot.fromX += xMove;
+				dot.fromY += yMove;
 			}
 		});
 	});
