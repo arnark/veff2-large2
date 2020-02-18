@@ -403,7 +403,8 @@ function toggleMove() {
 }
 
 function savePainting() {
-	savedPaintings.push(drawStack);
+	let saveName = prompt("Name of this masterpiece: ", "The Scream");
+	savedPaintings.push({ artName: saveName, drawData: drawStack });
 	localStorage.setItem("paintings", JSON.stringify(savedPaintings));
 	alert("Painting saved successfully!");
 }
@@ -411,8 +412,8 @@ function savePainting() {
 function loadPainting(index) {
 	for (let i = 0; i < savedPaintings.length; i++) {
 		if (i == index) {
-			drawStack = savedPaintings[i];
-			rePaint(savedPaintings[i]);
+			drawStack = savedPaintings[i].drawData;
+			rePaint(savedPaintings[i].drawData);
 		}
 	}
 }
@@ -422,7 +423,7 @@ function loadSavedPaintings() {
 		let savedOptions = document.getElementById("saved")
 		let option = document.createElement('option');
 		option.value = i;
-		option.innerHTML = i;
+		option.innerHTML = savedPaintings[i].artName;
 		savedOptions.appendChild(option);
 	};
 }
