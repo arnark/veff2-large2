@@ -394,6 +394,7 @@ function toggleMove() {
 	if (move) {
 		document.getElementById("canvas-move").style.cursor = "auto";
 		document.getElementById("canvas-move").id = "canvas";
+		$('.icon').removeClass('selected');
 		move = false;
 	} else {
 		document.getElementById("canvas").style.cursor = "crosshair";
