@@ -368,8 +368,8 @@ function moveItems() {
 							}
 						}
 					}
-
-				} 
+					
+				}
 
 			});
 		});
@@ -522,7 +522,7 @@ function init() {
 		// Draw is toggled
 		else {
 			canvas.drawStroke = [];
-			canvas.drawDot = {}
+			canvas.drawDot = { fromX: mouse.x, fromY: mouse.y }
 
 			ctx.beginPath();
 			ctx.moveTo(mouse.x, mouse.y);
