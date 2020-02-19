@@ -48,6 +48,11 @@ function paint(e = {}) {
 
 		// Push circle to drawStroke array
 		canvas.drawDot.arc = { xPos: startX, yPos: startY, radius: radius, sAngle: 0, eAngle: 2 * Math.PI };
+		canvas.drawDot.fromX = startX - radius;
+		canvas.drawDot.fromY = startY - radius;
+		canvas.drawDot.toX = startX + radius;
+		canvas.drawDot.toY = startY + radius;
+
 		if (!canvas.drawStroke.includes(canvas.drawDot)) {
 			canvas.drawStroke.push(canvas.drawDot);
 		}
@@ -90,7 +95,7 @@ function paint(e = {}) {
 			// DrawDot attributes
 			canvas.drawDot.fromX = startX;
 			canvas.drawDot.fromY = startY;
-			canvas.drawDot.toX = startX + ctx.measureText(e.key).width;
+			canvas.drawDot.toX = ctx.measureText(e.key).width + startX;
 			canvas.drawDot.toY = parseInt(startY) + parseInt(fontSize);
 			canvas.drawDot.font = `${(fontSize ? fontSize : '12')}px ${(textFont ? textFont : 'Arial')}`;
 			canvas.drawDot.fillStyle = ctx.fillStyle;
@@ -108,7 +113,7 @@ function paint(e = {}) {
 				// DrawDot attributes
 				canvas.drawDot.fromX = startX;
 				canvas.drawDot.fromY = startY;
-				canvas.drawDot.toX = startX + ctx.measureText(e.key).width;
+				canvas.drawDot.toX = ctx.measureText(e.key).width + startX;
 				canvas.drawDot.toY = parseInt(startY) + parseInt(fontSize);
 				canvas.drawDot.font = `${(fontSize ? fontSize : '12')}px ${(textFont ? textFont : 'Arial')}`;
 				canvas.drawDot.fillStyle = ctx.fillStyle;
@@ -121,8 +126,8 @@ function paint(e = {}) {
 
 			// Update the line end position
 			canvas.drawStroke[canvas.drawStroke.length - 1].text += e.key;
-			canvas.drawStroke[canvas.drawStroke.length - 1].toX = startX + ctx.measureText(canvas.drawStroke[canvas.drawStroke.length - 1].text).width;
-			//canvas.drawStroke[canvas.drawStroke.length - 1].toY = ctx.measureText(canvas.drawStroke[canvas.drawStroke.length - 1].text).height;
+			canvas.drawStroke[canvas.drawStroke.length - 1].toX += ctx.measureText(e.key).width;
+			
 			rePaint();
 			startX += ctx.measureText(e.key).width;
 		}
@@ -305,7 +310,7 @@ function moveItems() {
 			stroke.forEach(dot => {
 				console.log(JSON.stringify(dot, null, 4))
 
-				if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text' || dot.tool === 'rectangle') {
+				if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text' || dot.tool === 'rectangle' || dot.tool === 'circle') {
 
 					// Check for all possible elements within selected area
 					if (height < 0) {
@@ -336,7 +341,7 @@ function moveItems() {
 						}
 					}
 
-				} else if (dot.tool === 'circle') {
+				} else if (dot.tool === 'cidrcle') {
 
 					// Reused values
 					let fromX = dot.arc.xPos - dot.arc.radius;
@@ -368,7 +373,7 @@ function moveItems() {
 							}
 						}
 					}
-					
+
 				}
 
 			});
@@ -384,12 +389,16 @@ function moveItems() {
 		stroke.forEach(dot => {
 			if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text') {
 				dot.fromX += xMove;
-				dot.toX += xMove;
 				dot.fromY += yMove;
+				dot.toX += xMove;
 				dot.toY += yMove;
 			} else if (dot.tool === 'circle') {
 				dot.arc.xPos += xMove;
 				dot.arc.yPos += yMove;
+				dot.fromX += xMove;
+				dot.fromY += yMove;
+				dot.toX += xMove;
+				dot.toY += yMove;
 			} else if (dot.tool === 'rectangle') {
 				dot.fromX += xMove;
 				dot.fromY += yMove;
