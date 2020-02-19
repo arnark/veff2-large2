@@ -11,7 +11,7 @@
 		<div id="container">
 
 			<div id="canvas-options">
-
+				<!-- Undo & Redo -->
 				<div class="icon undo circle un" data-shape="undo" onclick="undo()">
 					<i class="fa fa-undo" aria-hidden="true"></i>
 				</div>
@@ -20,6 +20,7 @@
                 	<i class="fa fa-rotate-right" aria-hidden="true"></i>
             	</div>
 
+				<!--  Shapes & Move -->
 				<div class="icon undo circle" data-shape="circle" title="circle">
 					<i class="fa fa-circle-o" aria-hidden="true"></i>
 				</div>
@@ -36,35 +37,65 @@
 					<i class="fa fa-arrows" aria-hidden="true"></i>
 				</div>
 
+				<!-- Pencil & line width  -->
 				<div class="icon undo circle" data-shape="pencil" title="pencil">
                 	<i class="fa fa-pencil" aria-hidden="true"></i>
             	</div>
 
-				<select class="select-css" onchange="setLineWidth(this.value)">
+				<select class="select-css pen" onchange="setLineWidth(this.value)">
 					<option value="2">2</option>
 					<option value="4">4</option>
 					<option value="6">6</option>
 					<option value="8">8</option>
 					<option value="10" selected>10</option>
 					<option value="12">12</option>
+					<option value="14">14</option>
+					<option value="16">16</option>
+					<option value="18">18</option>
+					<option value="20">20</option>
+					<option value="22">22</option>
+					<option value="24">24</option>
+					<option value="26">26</option>
+					<option value="28">28</option>
 				</select>
 
-				<div class="iconColor undo circle ColorBlack colorpick" data-shape="colorBlack" title="black">
-					<i class="fa fa-paint-brush" aria-hidden="true"></i>
+				<!--  Colors -->
+				<div class="colorContainer">
+					<div class="iconColor undo circle ColorBlack colorpick" data-shape="colorBlack" title="black">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+
+					<div class="iconColor undo circle ColorBlue colorpick" data-shape="colorBlue" title="blue">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+
+					<div class="iconColor undo circle ColorYellow colorpick" data-shape="colorYellow" title="yellow">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+
+					<div class="iconColor undo circle ColorRed colorpick" data-shape="colorRed" title="red">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+					<div class="iconColor undo circle ColorOrange colorpick" data-shape="colorOrange" title="#FF5733">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+
+					<div class="iconColor undo circle ColorGreen colorpick" data-shape="colorGreen" title="#33FF57">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+
+					<div class="iconColor undo circle ColorPurple colorpick" data-shape="colorPurple" title="#8634eb">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+
+					<div class="iconColor undo circle ColorPink colorpick re" data-shape="colorPink" title="#eb349f">
+						<i class="fa fa-paint-brush" aria-hidden="true"></i>
+					</div>
+
 				</div>
 
-				<div class="iconColor undo circle ColorBlue colorpick" data-shape="colorBlue" title="blue">
-					<i class="fa fa-paint-brush" aria-hidden="true"></i>
-				</div>
 
-				<div class="iconColor undo circle ColorYellow colorpick" data-shape="colorYellow" title="yellow">
-					<i class="fa fa-paint-brush" aria-hidden="true"></i>
-				</div>
-
-				<div class="iconColor undo circle ColorRed colorpick re" data-shape="colorRed" title="red">
-					<i class="fa fa-paint-brush" aria-hidden="true"></i>
-				</div>
-
+					<!-- Text, fonts, fontsize -->
 				<div class="icon undo circle un" data-shape="text" title="text">
 					<i class="fa fa-etsy" aria-hidden="true"></i>
 				</div>
@@ -83,14 +114,20 @@
 
 				<select id="font" class="select-css" onchange="setTextFont(this.value)">
 					<option value="Arial, Helvetica, sans-serif" selected>Arial</option>
+					<option value="'Arial Black', Gadget, sans-serif">Arial black</option>
 					<option value="Verdana">Verdana</option>
 					<option value="Times New Roman">Times New Roman</option>
+					<option value="Times">Times</option>
 					<option value="Courier New">Courier New</option>
-					<option value="serif">serif</option>
+					<option value="Courier">Courier</option>
 					<option value="sans-serif">sans-serif</option>
+					<option value="serif">serif</option>
+					<option value="Impact, Charcoal, sans-serif">Impact</option>
+					<option value="'Comic Sans MS', cursive, sans-serif">Comic Sans MS</option>
 				</select>
 
-				<div class="icon undo iconTwo circle re" data-shape="save" onclick="savePainting()">
+				<!--  Save & Load -->
+				<div class="icon undo iconTwo circle re" data-shape="save" id="savepainting" onclick="savePainting()">
 					<i class="fa fa-save" aria-hidden="true"></i>
 				</div>
 

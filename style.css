@@ -146,11 +146,45 @@ body {
 
 /* Load Dropdown */
 #saved {
-	width: 7.2rem;
+	width: 5.2rem;
 }
 
-#fontSize, #font {
-	width: 4.6rem;
+/* Font drop down*/
+#font {
+	width: 7.6rem;
+}
+
+/* Font Size drop down */
+#fontSize {
+	width: 4rem;
+}
+
+.pen {
+	width: 3.5rem;
+}
+
+/* Color Container*/
+.colorContainer {
+	display: inline-block;
+	width: 10rem;
+	float: left;
+}
+
+/* Colors */
+.colorpick {
+	width: 2rem !important;
+	height: 1.2rem !important;
+}
+
+/* for the color icons so the jquery selector does not count them in*/
+.iconColor {
+	display: inline-block;
+	font-size: 0.9em;
+	float: left;
+	width: 3rem;
+	height: 2rem;
+	margin: auto;
+	transition: color .5s;
 }
 
 /* Load and save painting */
@@ -178,6 +212,22 @@ body {
 	color: #CD0F0F;
 }
 
+.ColorOrange {
+	color: #FF5733;
+}
+
+.ColorGreen {
+	color: #33FF57;
+}
+
+.ColorPurple {
+	color: #8634eb;
+}
+
+.ColorPink {
+	color: #eb349f;
+}
+
 /* Icons in menu*/
 .icon {
 	display: inline-block;
@@ -201,27 +251,16 @@ body {
 
 /* Margin classes used */
  .un {
-	 margin-left: 1%;
+	 margin-left: 3%;
  }
 
  .re {
-	 margin-right: 3%;
+	 margin-right: 5%;
  }
 
  /*For the color icons to have different selected color*/
 .selectedTwo {
 	color: rgb(165, 158, 158);
-}
-
-/* for the color icons so the jquery selector does not count them in*/
-.iconColor {
-	display: inline-block;
-	font-size: 2em;
-	float: left;
-	width: 3rem;
-	height: 3rem;
-	margin: auto;
-	transition: color .5s;
 }
 
 
