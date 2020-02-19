@@ -141,10 +141,14 @@ function paint(e = {}) {
 			}
 		}
 		
+		let sizeX = - startX + mouse.x;
+		let sizeY = - startY + mouse.y;
 		canvas.drawStroke[0].fromX = startX;
 		canvas.drawStroke[0].fromY = startY;
-		canvas.drawStroke[0].toX = - startX + mouse.x;
-		canvas.drawStroke[0].toY = - startY + mouse.y;
+		canvas.drawStroke[0].toX = startX + sizeX;
+		canvas.drawStroke[0].toY = startY + sizeY;
+		canvas.drawStroke[0].sizeX = sizeX;
+		canvas.drawStroke[0].sizeY = sizeY;
 
 		rePaint();
 		ctx.beginPath();
@@ -156,7 +160,7 @@ function paint(e = {}) {
 function rePaint(stack = drawStack) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	// Preserver current settings
+	// Preserve current settings
 	let currLineWidth = ctx.lineWidth;
 	let currStrokeStyle = ctx.strokeStyle;
 	let oldFont = ctx.font;
@@ -183,8 +187,10 @@ function rePaint(stack = drawStack) {
 				ctx.fillStyle = dot.fillStyle;
 				ctx.fillText(dot.text, dot.fromX, dot.fromY);
 			} else if (dot.tool === 'rectangle') {
+				ctx.lineWidth = dot.lineWidth;
+				ctx.strokeStyle = dot.strokeStyle;
 				ctx.beginPath();
-				ctx.rect(dot.fromX, dot.fromY, dot.toX, dot.toY);
+				ctx.rect(dot.fromX, dot.fromY, dot.sizeX, dot.sizeY);
 				ctx.stroke();
 			}
 		});
@@ -290,29 +296,40 @@ function moveItems() {
 		let height = moveToY - moveFromY;
 		let width = moveToX - moveFromX;
 
+		console.log(moveFromX)
+		console.log(moveFromY)
+		console.log(moveToX)
+		console.log(moveToY)
+
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
+				console.log(JSON.stringify(dot, null, 4))
+
 				if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text' || dot.tool === 'rectangle') {
 
 					// Check for all possible elements within selected area
 					if (height < 0) {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
+							console.log(1)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						} else if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
+							console.log(2)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else if (width < 0) {
 						if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+							console.log(3)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
+							console.log(4)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
@@ -352,7 +369,7 @@ function moveItems() {
 						}
 					}
 
-				}
+				} 
 
 			});
 		});
@@ -376,6 +393,8 @@ function moveItems() {
 			} else if (dot.tool === 'rectangle') {
 				dot.fromX += xMove;
 				dot.fromY += yMove;
+				dot.toX += xMove;
+				dot.toY += yMove;
 			}
 		});
 	});
@@ -404,10 +423,21 @@ function toggleMove() {
 }
 
 function savePainting() {
+
 	let saveName = prompt("Name of this masterpiece: ", "The Scream");
-	savedPaintings.push({ artName: saveName, drawData: drawStack });
-	localStorage.setItem("paintings", JSON.stringify(savedPaintings));
-	alert("Painting saved successfully!");
+	if (saveName !== null) {
+		savedPaintings.push({ artName: saveName, drawData: drawStack });
+		localStorage.setItem("paintings", JSON.stringify(savedPaintings));
+		alert("Painting saved successfully!");
+
+		let savedOptions = document.getElementById("saved")
+		let option = document.createElement('option');
+		option.value = savedPaintings.length - 1;
+		option.innerHTML = savedPaintings[savedPaintings.length - 1].artName;
+		$("#saved").append(option)
+
+	}
+
 }
 
 function loadPainting(index) {
@@ -492,7 +522,7 @@ function init() {
 		// Draw is toggled
 		else {
 			canvas.drawStroke = [];
-			canvas.drawDot = { fromX: mouse.x, fromY: mouse.y }
+			canvas.drawDot = {}
 
 			ctx.beginPath();
 			ctx.moveTo(mouse.x, mouse.y);
