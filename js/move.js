@@ -36,6 +36,14 @@ function paintSelectedArea() {
 
 }
 
+function removeSelectedArea() {
+	let selectedArea = document.getElementById("selected-area");
+	if (selectedArea) {
+		selectedArea.remove();
+	}
+	document.getElementById("canvas-move").style.cursor = "move";
+}
+
 function moveItems() {
 
 	// Select the elements that are to be moved
