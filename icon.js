@@ -5,7 +5,6 @@ $('.icon').on('click', function () {
     $(this).click(setPencilType(myTitle));
 });
 
-
 $('.colorpick').on('click', function () {
     $('.colorpick').removeClass('selectedTwo');
     $(this).addClass('selectedTwo');

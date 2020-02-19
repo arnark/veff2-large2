@@ -85,6 +85,7 @@ function paint(e = {}) {
 		ctx.stroke();
 
 	} else if (tool === 'text' && 'key' in e) {
+
 		// If enter is pressed go to next line
 		if (e.keyCode === 13) {
 
@@ -105,10 +106,9 @@ function paint(e = {}) {
 				canvas.drawStroke.push(canvas.drawDot);
 			}
 
-		}
-		// Excludes Caps and shift will return text Shift and CapsLock
-		else if (e.keyCode !== 9 && e.keyCode !== 20 && e.keyCode !== 16) {
+		} else if (e.keyCode !== 9 && e.keyCode !== 20 && e.keyCode !== 16 && e.keyCode !== 8) {
 
+			// Excludes Caps and shift will return text Shift and CapsLock
 			if (canvas.drawStroke.length == 0) {
 				// DrawDot attributes
 				canvas.drawDot.fromX = startX;
@@ -127,7 +127,7 @@ function paint(e = {}) {
 			// Update the line end position
 			canvas.drawStroke[canvas.drawStroke.length - 1].text += e.key;
 			canvas.drawStroke[canvas.drawStroke.length - 1].toX += ctx.measureText(e.key).width;
-			
+
 			rePaint();
 			startX += ctx.measureText(e.key).width;
 		}
@@ -297,77 +297,32 @@ function moveItems() {
 
 	// Select the elements that are to be moved
 	if (strokeList.length === 0) {
-
 		let height = moveToY - moveFromY;
 		let width = moveToX - moveFromX;
 
-		console.log(moveFromX)
-		console.log(moveFromY)
-		console.log(moveToX)
-		console.log(moveToY)
-
 		drawStack.forEach(stroke => {
 			stroke.forEach(dot => {
-				console.log(JSON.stringify(dot, null, 4))
-
 				if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text' || dot.tool === 'rectangle' || dot.tool === 'circle') {
 
 					// Check for all possible elements within selected area
 					if (height < 0) {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
-							console.log(1)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						} else if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY <= moveFromY && dot.toY >= moveToY) {
-							console.log(2)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else if (width < 0) {
 						if (dot.fromX <= moveFromX && dot.toX >= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
-							console.log(3)
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
 						}
 					} else {
 						if (dot.fromX >= moveFromX && dot.toX <= moveToX && dot.fromY >= moveFromY && dot.toY <= moveToY) {
-							console.log(4)
-							if (!strokeList.includes(stroke)) {
-								strokeList.push(stroke);
-							}
-						}
-					}
-
-				} else if (dot.tool === 'cidrcle') {
-
-					// Reused values
-					let fromX = dot.arc.xPos - dot.arc.radius;
-					let toX = dot.arc.xPos + dot.arc.radius;
-					let fromY = dot.arc.yPos - dot.arc.radius;
-					let toY = dot.arc.yPos + dot.arc.radius;
-
-					// Check if selected area contains a circle
-					if (height < 0) {
-						if (fromX >= moveFromX && fromY <= moveFromY) {
-							if (!strokeList.includes(stroke)) {
-								strokeList.push(stroke);
-							}
-						} else if (fromX <= moveFromX && toX >= moveToX && fromY <= moveFromY && toY >= moveToY) {
-							if (!strokeList.includes(stroke)) {
-								strokeList.push(stroke);
-							}
-						}
-					} else if (width < 0) {
-						if (fromX <= moveFromX & toX >= moveToX && fromY >= moveFromY && toY <= moveToY) {
-							if (!strokeList.includes(stroke)) {
-								strokeList.push(stroke);
-							}
-						}
-					} else {
-						if (fromX >= moveFromX & toX <= moveToX && fromY >= moveFromY & toY <= moveToY) {
 							if (!strokeList.includes(stroke)) {
 								strokeList.push(stroke);
 							}
@@ -375,7 +330,6 @@ function moveItems() {
 					}
 
 				}
-
 			});
 		});
 	}
@@ -387,23 +341,13 @@ function moveItems() {
 	// Update each and every dot
 	strokeList.forEach(stroke => {
 		stroke.forEach(dot => {
-			if (dot.tool === 'pencil' || dot.tool === 'line' || dot.tool === 'text') {
-				dot.fromX += xMove;
-				dot.fromY += yMove;
-				dot.toX += xMove;
-				dot.toY += yMove;
-			} else if (dot.tool === 'circle') {
+			dot.fromX += xMove;
+			dot.fromY += yMove;
+			dot.toX += xMove;
+			dot.toY += yMove;
+			if (dot.tool === 'circle') {
 				dot.arc.xPos += xMove;
 				dot.arc.yPos += yMove;
-				dot.fromX += xMove;
-				dot.fromY += yMove;
-				dot.toX += xMove;
-				dot.toY += yMove;
-			} else if (dot.tool === 'rectangle') {
-				dot.fromX += xMove;
-				dot.fromY += yMove;
-				dot.toX += xMove;
-				dot.toY += yMove;
 			}
 		});
 	});
@@ -432,7 +376,6 @@ function toggleMove() {
 }
 
 function savePainting() {
-
 	let saveName = prompt("Name of this masterpiece: ", "The Scream");
 	if (saveName !== null) {
 		savedPaintings.push({ artName: saveName, drawData: drawStack });
@@ -446,7 +389,6 @@ function savePainting() {
 		$("#saved").append(option)
 
 	}
-
 }
 
 function loadPainting(index) {
